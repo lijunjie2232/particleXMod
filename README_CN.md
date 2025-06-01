@@ -2,14 +2,22 @@
 
 # Hexo-Theme-ParticleXMod
 
-[![Readme JP](https://img.shields.io/badge/README-JP-blue)](./README.md)
-[![Readme CN](https://img.shields.io/badge/README-CN-green)](./README_CN.md)
+[![Readme JP](https://img.shields.io/badge/README-JP-white)](./README.md)
+[![Readme CN](https://img.shields.io/badge/README-CN-red)](./README_CN.md)
+[![Readme EN](https://img.shields.io/badge/README-EN-blue)](./README_EN.md)
 
 </div>
 
 <br />
 
 [ParticleXMod](https://github.com/lijunjie2232/particlexMod) 主题，修改于 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex)。
+
+# ChangeLog && TODO
+
+-   [x] 固定首页背景为fixed
+-   [ ] 加入目录
+
+---
 
 # 1. 演示
 
@@ -357,3 +365,11 @@ twikoo:
 # 4. 写在最后
 
 本项目采用 MIT 开源许可证，欢迎大家贡献，你可以随意打开一个 Issue 来进行提问，有任何改进想法都可以进行 Fork，期待您的 Pull Request！
+
+# 5. 致谢
+
+感谢以下项目：
+- [Hexo](https://hexo.io/)
+- [Hexo-Theme-Butterfly](https://github.com/theme-particlex/hexo-theme-particlex)
+- [Hexo-Theme-redefine](https://github.com/EvanNotFound/hexo-theme-redefine)
+

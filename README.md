@@ -2,14 +2,22 @@
 
 # Hexo-Theme-ParticleXMod
 
-[![Readme JP](https://img.shields.io/badge/README-JP-blue)](./README.md)
-[![Readme CN](https://img.shields.io/badge/README-CN-green)](./README_CN.md)
+[![Readme JP](https://img.shields.io/badge/README-JP-white)](./README.md)
+[![Readme CN](https://img.shields.io/badge/README-CN-red)](./README_CN.md)
+[![Readme EN](https://img.shields.io/badge/README-EN-blue)](./README_EN.md)
 
 </div>
 
 <br />
 
 [ParticleXMod](https://github.com/lijunjie2232/particlexMod) は、 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex) から、編集したテーマです。
+
+# ChangeLog && TODO
+
+-   [x] ホームページの背景を固定（`fixed`）に設定
+-   [ ] 目次機能を追加
+
+---
 
 ## 1. デモ
 
@@ -355,3 +363,10 @@ twikoo:
 ## 4. 最後に
 
 このプロジェクトは MIT ライセンスに基づいています。自由に貢献を受け付けています。Issue を開いて質問したり、Pull Request を送って改善案を提案することも可能です！お待ちしています！
+
+## 5. サンクス
+
+以下のプロジェクトに感謝します：
+- [Hexo](https://hexo.io/)
+- [Hexo-Theme-Butterfly](https://github.com/theme-particlex/hexo-theme-particlex)
+- [Hexo-Theme-redefine](https://github.com/EvanNotFound/hexo-theme-redefine)
