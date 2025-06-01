@@ -12,10 +12,42 @@
 
 [ParticleXMod](https://github.com/lijunjie2232/particlexMod) is a modified version of [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex).
 
+- [Hexo-Theme-ParticleXMod](#hexo-theme-particlexmod)
+  - [ChangeLog \&\& TODO](#changelog--todo)
+  - [1. Demo](#1-demo)
+  - [2. Installation](#2-installation)
+    - [2.1. Disable Built-in Code Highlighting](#21-disable-built-in-code-highlighting)
+    - [2.2. Disable Yearly/Monthly Archives](#22-disable-yearlymonthly-archives)
+  - [3. Configuration](#3-configuration)
+    - [3.1. Basic Configuration](#31-basic-configuration)
+    - [3.2. Content Configuration](#32-content-configuration)
+      - [3.2.1. Navigation Bar](#321-navigation-bar)
+      - [3.2.2. Homepage Info Card](#322-homepage-info-card)
+      - [3.2.3. Footer](#323-footer)
+    - [3.3. Feature Configuration](#33-feature-configuration)
+      - [3.3.1. Polyfill](#331-polyfill)
+      - [3.3.2. Code Highlighting](#332-code-highlighting)
+      - [3.3.3. Math Rendering](#333-math-rendering)
+      - [3.3.4. Image Preview](#334-image-preview)
+      - [3.3.5. Article Excerpt](#335-article-excerpt)
+      - [3.3.6. Pin Articles](#336-pin-articles)
+      - [3.3.7. Article Encryption](#337-article-encryption)
+      - [3.3.8. Search](#338-search)
+    - [3.4. Comment Systems](#34-comment-systems)
+      - [3.4.1. giscus](#341-giscus)
+      - [3.4.2. Gitalk](#342-gitalk)
+      - [3.4.3. Waline](#343-waline)
+      - [3.4.4. Twikoo](#344-twikoo)
+  - [4. Final Words](#4-final-words)
+  - [5. Acknowledgments](#5-acknowledgments)
+
+
+
 ---
 
 ## ChangeLog && TODO
 
+-   [x] Fix math rendering
 -   [x] Set homepage background to `fixed`
 -   [ ] Add table of contents
 

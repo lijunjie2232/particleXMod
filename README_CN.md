@@ -12,10 +12,41 @@
 
 [ParticleXMod](https://github.com/lijunjie2232/particlexMod) 主题，修改于 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex)。
 
+- [Hexo-Theme-ParticleXMod](#hexo-theme-particlexmod)
+- [ChangeLog \&\& TODO](#changelog--todo)
+- [1. 演示](#1-%E6%BC%94%E7%A4%BA)
+- [2. 安装](#2-%E5%AE%89%E8%A3%85)
+  - [2.1. 关闭自带代码高亮](#21-%E5%85%B3%E9%97%AD%E8%87%AA%E5%B8%A6%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE)
+  - [2.2. 禁用年度月度归档](#22-%E7%A6%81%E7%94%A8%E5%B9%B4%E5%BA%A6%E6%9C%88%E5%BA%A6%E5%BD%92%E6%A1%A3)
+- [3. 配置](#3-%E9%85%8D%E7%BD%AE)
+  - [3.1. 基本配置](#31-%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE)
+  - [3.2. 内容配置](#32-%E5%86%85%E5%AE%B9%E9%85%8D%E7%BD%AE)
+    - [3.2.1. 导航栏](#321-%E5%AF%BC%E8%88%AA%E6%A0%8F)
+    - [3.2.2. 主页信息卡片](#322-%E4%B8%BB%E9%A1%B5%E4%BF%A1%E6%81%AF%E5%8D%A1%E7%89%87)
+    - [3.2.3. 页脚](#323-%E9%A1%B5%E8%84%9A)
+  - [3.3. 功能配置](#33-%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE)
+    - [3.3.1. Polyfill](#331-polyfill)
+    - [3.3.2. 代码高亮](#332-%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE)
+    - [3.3.3. 数学渲染](#333-%E6%95%B0%E5%AD%A6%E6%B8%B2%E6%9F%93)
+    - [3.3.4. 图片预览](#334-%E5%9B%BE%E7%89%87%E9%A2%84%E8%A7%88)
+    - [3.3.5. 文章缩略](#335-%E6%96%87%E7%AB%A0%E7%BC%A9%E7%95%A5)
+    - [3.3.6. 文章置顶](#336-%E6%96%87%E7%AB%A0%E7%BD%AE%E9%A1%B6)
+    - [3.3.7. 文章加密](#337-%E6%96%87%E7%AB%A0%E5%8A%A0%E5%AF%86)
+    - [3.3.8. 搜索](#338-%E6%90%9C%E7%B4%A2)
+  - [3.4. 评论配置](#34-%E8%AF%84%E8%AE%BA%E9%85%8D%E7%BD%AE)
+    - [3.4.1. giscus](#341-giscus)
+    - [3.4.2. Gitalk](#342-gitalk)
+    - [3.4.3. Waline](#343-waline)
+    - [3.4.4. Twikoo](#344-twikoo)
+- [4. 写在最后](#4-%E5%86%99%E5%9C%A8%E6%9C%80%E5%90%8E)
+- [5. 致谢](#5-%E8%87%B4%E8%B0%A2)
+
+
 # ChangeLog && TODO
 
--   [x] 固定首页背景为fixed
--   [ ] 加入目录
+- [x] 修复公式渲染
+- [x] 固定首页背景为fixed
+- [ ] 加入目录
 
 ---
 
