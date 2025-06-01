@@ -12,6 +12,8 @@
 
 [ParticleXMod](https://github.com/lijunjie2232/particlexMod) は、 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex) から、編集したテーマです。
 
+注：スタイルの調整は個人的な審美に基づいています。ブログの見た目に関する変更はすべて筆者の好みによるものであり、もしデザインに不満がある場合は自由にお好きなようにカスタマイズしてください。
+
 - [Hexo-Theme-ParticleXMod](#hexo-theme-particlexmod)
 - [ChangeLog \&\& TODO](#changelog--todo)
   - [1. デモ](#1-%E3%83%87%E3%83%A2)

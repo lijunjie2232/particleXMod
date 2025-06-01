@@ -12,6 +12,8 @@
 
 [ParticleXMod](https://github.com/lijunjie2232/particlexMod) 主题，修改于 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex)。
 
+注：样式调整仅代表本人审美，如果您认为调整太丑，那一定是我的审美问题，请自行修改样式。
+
 - [Hexo-Theme-ParticleXMod](#hexo-theme-particlexmod)
 - [ChangeLog \&\& TODO](#changelog--todo)
 - [1. 演示](#1-%E6%BC%94%E7%A4%BA)
