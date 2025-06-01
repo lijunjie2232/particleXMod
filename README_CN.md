@@ -21,13 +21,13 @@
 
 ```bash
 cd themes
-git clone https://github.com/theme-particlex/hexo-theme-particlex.git particlex --depth=1
+git clone https://github.com/lijunjie2232/particlexMod.git particlexmod --depth=1
 ```
 
 然后在根目录 `_config.yml` 设置主题为 ParticleX 即可。
 
 ```yaml
-theme: particlex
+theme: particlexmod
 ```
 
 ## 2.1. 关闭自带代码高亮
