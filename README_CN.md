@@ -1,5 +1,13 @@
-<center><h1>Hexo-Theme-ParticleXMod</h1></center>
-<center><h2><a herf="./README.md">[READMD_JP]</a> <a herf="./README_CN.md">[READMD_CN]</a></h2></center>
+<div align="center">
+
+# Hexo-Theme-ParticleXMod
+
+[![Readme JP](https://img.shields.io/badge/README-JP-blue)](./README.md)
+[![Readme CN](https://img.shields.io/badge/README-CN-green)](./README_CN.md)
+
+</div>
+
+<br />
 
 [ParticleXMod](https://github.com/lijunjie2232/particlexMod) 主题，修改于 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex)。
 
