@@ -1,11 +1,7 @@
 <center><h1>Hexo-Theme-ParticleXMod</h1></center>
-<center><h2><a herf="./README_JP.md">[READMD_JP]</a> <a herf="./README_CN.md">[READMD_CN]</a></h2></center>
+<center><h2><a herf="./README.md">[READMD_JP]</a> <a herf="./README_CN.md">[READMD_CN]</a></h2></center>
 
-[ParticleXMod](https://github.com/lijunjie2232/particlexMod) は、もともとの [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex) テーマが更新されていないため作成されました。でも、ParticleXテーマはとても優れていると思っています。
-
-以前は Vue 2 + Ant Design Vue 1 を使用していましたが、現在は Vue 3 へアップグレードし、Ant Design Vue を削除してカスタムスタイルに変更しました。アイコンは Font Awesome 6 に変更し、CDN は ZStatic に変更しました。
-
-このバージョンでは1つのスタイルのみになりました。色を変更したい場合は、`main.css` 内で置き換えてください。
+[ParticleXMod](https://github.com/lijunjie2232/particlexMod) は、 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex) から、編集したテーマです。
 
 ## 1. デモ
 

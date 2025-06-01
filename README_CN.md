@@ -1,14 +1,7 @@
-# Hexo-Theme-ParticleX
+<center><h1>Hexo-Theme-ParticleXMod</h1></center>
+<center><h2><a herf="./README.md">[READMD_JP]</a> <a herf="./README_CN.md">[READMD_CN]</a></h2></center>
 
-[ParticleX](https://github.com/theme-particlex/hexo-theme-particlex) 主题，诞生原因是因为原来的 [Particle](https://github.com/korilin/hexo-theme-particle) 主题不维护了，但是我觉得还是很好的。
-
-原来用的是 Vue 2 + Ant Design Vue 1，现更新到 Vue 3，去除 Ant Design Vue 采用自定义样式，图标更改为 Font Awesome 6，CDN 改为 ZStatic。
-
-原项目 `README.md` 里说：
-
-> 目前有 Full、Night 和 Maiden **两个**主题样式。
-
-但是更改后只有一种了，如果你想改颜色就在 `main.css` 里替换吧。
+[ParticleXMod](https://github.com/lijunjie2232/particlexMod) 主题，修改于 [ParticleX](https://github.com/theme-particlex/hexo-theme-particlex)。
 
 # 1. 演示
 
