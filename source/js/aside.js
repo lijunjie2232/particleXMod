@@ -20,18 +20,19 @@ const tocItemClickFn = e => {
 const newTocNode = (level, idStack, item) => {
     const li = document.createElement('li')
     li.className = 'toc-item toc-level-' + level
-    const a = document.createElement('a')
-    a.className = 'toc-link'
-    a.href = '#' + encodeURI(item.id)
-    a.id = `toc-link-${item.id}`
+    const link_span = document.createElement('span')
+    link_span.className = 'toc-link'
+    // link_span.href = '#' + encodeURI(item.id)
+    link_span.addEventListener('click', findHeadPosition(item.top))
+    link_span.id = `toc-link-${item.id}`
     const spanNumber = document.createElement('span')
     spanNumber.className = 'toc-number'
     spanNumber.textContent = idStack.join('.') + '.'
-    a.appendChild(spanNumber)
+    link_span.appendChild(spanNumber)
     const spanText = document.createElement('span')
     spanText.className = 'toc-text'
     spanText.textContent = item.textContent
-    a.appendChild(spanText)
+    link_span.appendChild(spanText)
     li.appendChild(a)
     return li
 }
@@ -249,6 +250,7 @@ const autoScrollToc = item => {
     }
 
 }
+
 
 // main of scroll
 const tocScrollFn = throttle(() => {
