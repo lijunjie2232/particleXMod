@@ -134,8 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // const offsetY = window.innerHeight * 0.382
         // const offsetY = 0;
 
-        if ($tocLink[currentIndex].top >= top && document.getElementById("menu").classList.contains('hidden'))
-            top += 50
 
 
         let currentId = encodeURI($articleList[0].id)
@@ -180,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!isExpand) {
                 let parent = currentActive.parentNode
-                
                 while (!parent.matches('.toc')) {
                     if (parent.matches('li')) parent.classList.add('toc-active')
                     parent = parent.parentNode
