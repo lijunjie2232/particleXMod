@@ -134,7 +134,8 @@ const findHeadPosition = (top) => {
 
     // console.log(top)
 
-    const offsetY = window.innerHeight * 0.382
+    // const offsetY = window.innerHeight * 0.382
+    const offsetY = 0;
 
     if (top === 0) return false
 
@@ -225,7 +226,7 @@ const getScrollPercent = (currentTop, ele) => {
     }
 
     const scrollPercent = (currentTop - headerHeight) / contentMath;
-    return Math.max(0, Math.min(100, Math.round(scrollPercent * 100)));
+    return `${Math.max(0, Math.min(100, Math.round(scrollPercent * 100)))}%`;
 }
 
 const addEventListener = (ele, event, fn, option = false) => {
@@ -252,7 +253,7 @@ const autoScrollToc = item => {
 // main of scroll
 const tocScrollFn = throttle(() => {
     const currentTop = window.scrollY || document.documentElement.scrollTop
-    $tocPercentage.textContent = getScrollPercent(currentTop, $article)
+    document.getElementById('toc-percentage').textContent = getScrollPercent(currentTop, $article)
     findHeadPosition(currentTop)
 }, 100)
 
@@ -279,7 +280,6 @@ let detectItem = null
 
 const $cardTocLayout = document.getElementById('card-toc')
 const $cardToc = document.getElementById("toc-content")
-const $tocPercentage = document.getElementById('toc-percentage')
 isExpand = $cardToc.classList.contains('is-expand')
 
 addEventListener(window, 'scroll', tocScrollFn, { passive: true })
