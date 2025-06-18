@@ -588,6 +588,7 @@
     cursor: pointer;
     transition: all 0.3s;
     line-height: 2.5;
+    max-height: 100%;
 }
 
 #aside-content .card-info .author-info-name {
@@ -694,9 +695,20 @@
     position: -webkit-sticky; */
     /* For Safari */
     position: sticky !important;
-    top: 6vh !important;
+    /* top: 6vh; */
     /* z-index: 100; */
 }
+
+#aside-toc.sticky_layout.hidden {
+    top: 10px;
+    max-height: calc(100vh - 10px);
+}
+
+#aside-toc.sticky_layout {
+    top: 60px;
+    max-height: calc(100vh - 60px);
+}
+
 
 @media screen and (min-width: 901px) {
     #aside-content #card-toc {
@@ -751,8 +763,12 @@
     overflow-y: scroll;
     overflow-y: overlay;
     margin: 0 -24px;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 160px);
     width: calc(100% + 48px);
+}
+
+#aside-content #card-toc .toc-content.hidden {
+    max-height: calc(100vh - 110px) !important;
 }
 
 @media screen and (max-width: 900px) {
@@ -772,7 +788,7 @@
 }
 
 #aside-content #card-toc .toc-content:not(.is-expand) .toc-child {
-    display: none;
+    display: block;
 }
 
 @media screen and (max-width: 900px) {
@@ -781,7 +797,7 @@
     }
 }
 
-#aside-content #card-toc .toc-content:not(.is-expand) .toc-item.active .toc-child {
+#aside-content #card-toc .toc-content:not(.is-expand) .toc-item.toc-active .toc-child {
     display: block;
 }
 
@@ -816,7 +832,7 @@
     color: #49b1f5;
 }
 
-#aside-content #card-toc .toc-content .toc-link.active {
+#aside-content #card-toc .toc-content .toc-link.toc-active {
     background: #00c4b6;
     color: #fff;
 }
