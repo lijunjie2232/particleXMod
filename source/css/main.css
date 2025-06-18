@@ -707,6 +707,7 @@
 #aside-toc.sticky_layout {
     top: 60px;
     max-height: calc(100vh - 60px);
+    transition: transform 0.3s ease-in-out;
 }
 
 
@@ -765,6 +766,7 @@
     margin: 0 -24px;
     max-height: calc(100vh - 160px);
     width: calc(100% + 48px);
+    transition: transform 0.3s ease-in-out;
 }
 
 #aside-content #card-toc .toc-content.hidden {
