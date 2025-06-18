@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // link_span.setAttribute('winTop', item.top)
         link_span.addEventListener('click', (e) => {
             e.preventDefault();
-            scrollToDest(item.top - offsetY + 40);
+            scrollToDest(item.top - offsetY + 80);
             activateFn(item.id)
         }
         )
