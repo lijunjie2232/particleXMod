@@ -1,19 +1,4 @@
 // modified from butterfly
-// toc元素點擊
-
-const tocItemClickFn = e => {
-    e.preventDefault()
-    const target = e.target.closest('.toc-link')
-    if (!target) return
-    console.log(target)
-
-    const hash = decodeURI(target.getAttribute('href')).replace('#', '')
-    const targetEle = document.getElementById(hash)
-
-    if (targetEle) scrollToDest(getEleTop(targetEle), 300)
-
-    if (window.innerWidth < 900) $cardTocLayout.classList.remove('open')
-}
 /**
 * toc,anchor
 */
@@ -23,17 +8,28 @@ const newTocNode = (level, idStack, item) => {
     const link_span = document.createElement('span')
     link_span.className = 'toc-link'
     // link_span.href = '#' + encodeURI(item.id)
-    link_span.addEventListener('click', findHeadPosition(item.top))
     link_span.id = `toc-link-${item.id}`
+    link_span.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollToDest(item.top);
+    })
     const spanNumber = document.createElement('span')
     spanNumber.className = 'toc-number'
     spanNumber.textContent = idStack.join('.') + '.'
+    spanNumber.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollToDest(item.top);
+    })
     link_span.appendChild(spanNumber)
     const spanText = document.createElement('span')
     spanText.className = 'toc-text'
     spanText.textContent = item.textContent
+    spanText.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollToDest(item.top);
+    })
     link_span.appendChild(spanText)
-    li.appendChild(a)
+    li.appendChild(link_span)
     return li
 }
 
@@ -77,14 +73,13 @@ const buildToc = (l) => {
 }
 
 const scrollToDest = (pos, time = 500) => {
+    console.log(pos)
+    
     const currentPos = window.scrollY
     const offsetY = window.innerHeight * 0.382
     const isNavFixed = !document.getElementById('menu').classList.contains('hidden')
     if (currentPos > pos || isNavFixed) pos = pos - 50
     pos -= offsetY
-
-    console.log(pos)
-
 
     if ('scrollBehavior' in document.documentElement.style) {
         window.scrollTo({
@@ -172,6 +167,7 @@ const findHeadPosition = (top) => {
             const currentActive = document.getElementById($tocLink[currentIndex].id)
             currentActive.classList.add('toc-active')
 
+            // scroll to active toc in aside bar
             setTimeout(() => autoScrollToc(currentActive), 0)
 
             if (!isExpand) {
@@ -248,7 +244,6 @@ const autoScrollToc = item => {
     if (offset !== middlePosition) {
         $cardToc.scrollTop = scrollTop + (offset - middlePosition)
     }
-
 }
 
 
@@ -285,22 +280,3 @@ const $cardToc = document.getElementById("toc-content")
 isExpand = $cardToc.classList.contains('is-expand')
 
 addEventListener(window, 'scroll', tocScrollFn, { passive: true })
-
-// $cardToc.querySelectorAll('.toc-link').forEach(item => {
-$cardToc.addEventListener('click', e => {
-    const link = e.target.closest('.toc-link');
-    if (!link) return;
-
-    e.preventDefault()
-
-    const hash = decodeURI(target.getAttribute('href')).replace('#', '')
-    const targetEle = document.getElementById(hash)
-
-    if (targetEle) {
-        scrollToDest(getEleTop(targetEle), 300)
-    }
-
-    if (window.innerWidth < 900) {
-        $cardTocLayout.classList.remove('open')
-    }
-})
