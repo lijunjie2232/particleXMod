@@ -1,23 +1,39 @@
 // modified from butterfly
+// toc元素點擊
+
+const tocItemClickFn = e => {
+    e.preventDefault()
+    const target = e.target.closest('.toc-link')
+    if (!target) return
+    console.log(target)
+
+    const hash = decodeURI(target.getAttribute('href')).replace('#', '')
+    const targetEle = document.getElementById(hash)
+
+    if (targetEle) scrollToDest(getEleTop(targetEle), 300)
+
+    if (window.innerWidth < 900) $cardTocLayout.classList.remove('open')
+}
 /**
 * toc,anchor
 */
 const newTocNode = (level, idStack, item) => {
-    let li = document.createElement('li');
-    li.className = 'toc-item toc-level-' + level;
-    const a = document.createElement('a');
-    a.className = 'toc-link';
-    a.href = '#' + encodeURI(item.id);
-    const spanNumber = document.createElement('span');
-    spanNumber.className = 'toc-number';
-    spanNumber.textContent = idStack.join('.') + '.';
-    a.appendChild(spanNumber);
-    const spanText = document.createElement('span');
-    spanText.className = 'toc-text';
-    spanText.textContent = item.textContent;
-    a.appendChild(spanText);
-    li.appendChild(a);
-    return li;
+    const li = document.createElement('li')
+    li.className = 'toc-item toc-level-' + level
+    const a = document.createElement('a')
+    a.className = 'toc-link'
+    a.href = '#' + encodeURI(item.id)
+    a.id = `toc-link-${item.id}`
+    const spanNumber = document.createElement('span')
+    spanNumber.className = 'toc-number'
+    spanNumber.textContent = idStack.join('.') + '.'
+    a.appendChild(spanNumber)
+    const spanText = document.createElement('span')
+    spanText.className = 'toc-text'
+    spanText.textContent = item.textContent
+    a.appendChild(spanText)
+    li.appendChild(a)
+    return li
 }
 
 const buildToc = (l) => {
@@ -61,8 +77,13 @@ const buildToc = (l) => {
 
 const scrollToDest = (pos, time = 500) => {
     const currentPos = window.scrollY
-    const isNavFixed = document.getElementById('page-header').classList.contains('fixed')
-    if (currentPos > pos || isNavFixed) pos = pos - 70
+    const offsetY = window.innerHeight * 0.382
+    const isNavFixed = !document.getElementById('menu').classList.contains('hidden')
+    if (currentPos > pos || isNavFixed) pos = pos - 50
+    pos -= offsetY
+
+    console.log(pos)
+
 
     if ('scrollBehavior' in document.documentElement.style) {
         window.scrollTo({
@@ -111,6 +132,10 @@ const updateAnchor = (anchor) => {
 
 const findHeadPosition = (top) => {
 
+    // console.log(top)
+
+    const offsetY = window.innerHeight * 0.382
+
     if (top === 0) return false
 
     let currentId = ''
@@ -119,10 +144,10 @@ const findHeadPosition = (top) => {
 
     for (let i = 0; i < $articleList.length; i++) {
         const ele = $articleList[i]
-        console.log(ele)
-        
+
         const topOffset = ele.top;
-        if (top > topOffset - 80) {
+
+        if (top > topOffset - offsetY) {
             currentId = ele.id ? '#' + encodeURI(ele.id) : ''
             currentIndex = i
         } else {
@@ -130,30 +155,27 @@ const findHeadPosition = (top) => {
         }
     }
 
-    console.log(currentId)
-
-    console.log(currentIndex)
-
     if (detectItem === currentIndex) return
 
     if (isAnchor) updateAnchor(currentId)
 
     detectItem = currentIndex
+    $tocLink = $cardToc.querySelectorAll('.toc-link')
 
     if (isToc) {
 
-        $cardToc.querySelectorAll('.active').forEach(i => i.classList.remove('active'))
+        document.getElementById("toc-content").querySelectorAll('.toc-active').forEach(i => i.classList.remove('toc-active'))
 
         if (currentId) {
-            const currentActive = $tocLink[currentIndex]
-            currentActive.classList.add('active')
+            const currentActive = document.getElementById($tocLink[currentIndex].id)
+            currentActive.classList.add('toc-active')
 
             setTimeout(() => autoScrollToc(currentActive), 0)
 
             if (!isExpand) {
                 let parent = currentActive.parentNode
                 while (!parent.matches('.toc')) {
-                    if (parent.matches('li')) parent.classList.add('active')
+                    if (parent.matches('li')) parent.classList.add('toc-active')
                     parent = parent.parentNode
                 }
             }
@@ -206,48 +228,39 @@ const getScrollPercent = (currentTop, ele) => {
     return Math.max(0, Math.min(100, Math.round(scrollPercent * 100)));
 }
 
-const addEventListenerPjax = (ele, event, fn, option = false) => {
-
-    console.log(ele)
-    console.log(fn)
-    console.log(event)
-
+const addEventListener = (ele, event, fn, option = false) => {
 
     ele.addEventListener(event, fn, option);
 
-    // 模拟 pjaxSendOnce 清理逻辑（假设你在页面加载时清理）
-    window.addGlobalFn = window.addGlobalFn || {};
-    window.addGlobalFn['pjaxSendOnce'] = window.addGlobalFn['pjaxSendOnce'] || [];
+}
 
-    window.addGlobalFn['pjaxSendOnce'].push(() => {
-        ele.removeEventListener(event, fn, option);
-    });
+
+const autoScrollToc = item => {
+    const sidebarHeight = $cardToc.clientHeight
+    const itemOffsetTop = item.offsetTop
+    const itemHeight = item.clientHeight
+    const scrollTop = $cardToc.scrollTop
+    const offset = itemOffsetTop - scrollTop
+    const middlePosition = (sidebarHeight - itemHeight) / 2
+
+    if (offset !== middlePosition) {
+        $cardToc.scrollTop = scrollTop + (offset - middlePosition)
+    }
+
 }
 
 // main of scroll
 const tocScrollFn = throttle(() => {
     const currentTop = window.scrollY || document.documentElement.scrollTop
-    if (isToc && isTocPercent) {
-        $tocPercentage.textContent = getScrollPercent(currentTop, $article)
-    }
+    $tocPercentage.textContent = getScrollPercent(currentTop, $article)
     findHeadPosition(currentTop)
 }, 100)
 
-let docHeight, winHeight, headerHeight, contentMath;
+let docHeight, winHeight, headerHeight, contentMath
+let $tocLink, isExpand
 
-const $article = document.querySelector('.article-wrap .article .content')
+const $article = document.getElementById('content')
 
-if (!($article && (isToc || isAnchor)))
-    throw new Error('未找到文章容器或未启用toc和anchor')
-
-let $tocLink, $cardToc, autoScrollToc, $tocPercentage, isExpand
-
-// find head position & add active class
-// const $articleList = Array.from(
-//     $article.querySelectorAll('h1,h2,h3,h4,h5,h6')
-// ).map(
-//     item => document.getElementById(item.id)
-// )
 const $articleList = Array.from(
     $article.querySelectorAll('h1,h2,h3,h4,h5,h6')
 ).map(
@@ -259,47 +272,33 @@ const $articleList = Array.from(
         level: Number(item.tagName.slice(1)),
     })
 )
-let detectItem = ''
 
-if (isToc) {
+buildToc($articleList)
 
-    buildToc($articleList)
+let detectItem = null
 
-    const $cardTocLayout = document.getElementById('card-toc')
-    $cardToc = $cardTocLayout.querySelector('.toc-content')
-    $tocLink = $cardToc.querySelectorAll('.toc-link')
-    $tocPercentage = $cardTocLayout.querySelector('.toc-percentage')
-    isExpand = $cardToc.classList.contains('is-expand')
+const $cardTocLayout = document.getElementById('card-toc')
+const $cardToc = document.getElementById("toc-content")
+const $tocPercentage = document.getElementById('toc-percentage')
+isExpand = $cardToc.classList.contains('is-expand')
 
-    // toc元素點擊
-    const tocItemClickFn = e => {
-        const target = e.target.closest('.toc-link')
-        if (!target) return
+addEventListener(window, 'scroll', tocScrollFn, { passive: true })
 
-        e.preventDefault()
-        scrollToDest(getEleTop(document.getElementById(decodeURI(target.getAttribute('href')).replace('#', ''))), 300)
-        if (window.innerWidth < 900) {
-            $cardTocLayout.classList.remove('open')
-        }
+// $cardToc.querySelectorAll('.toc-link').forEach(item => {
+$cardToc.addEventListener('click', e => {
+    const link = e.target.closest('.toc-link');
+    if (!link) return;
+
+    e.preventDefault()
+
+    const hash = decodeURI(target.getAttribute('href')).replace('#', '')
+    const targetEle = document.getElementById(hash)
+
+    if (targetEle) {
+        scrollToDest(getEleTop(targetEle), 300)
     }
 
-    addEventListenerPjax($cardToc, 'click', tocItemClickFn)
-
-    autoScrollToc = item => {
-        const sidebarHeight = $cardToc.clientHeight
-        const itemOffsetTop = item.offsetTop
-        const itemHeight = item.clientHeight
-        const scrollTop = $cardToc.scrollTop
-        const offset = itemOffsetTop - scrollTop
-        const middlePosition = (sidebarHeight - itemHeight) / 2
-
-        if (offset !== middlePosition) {
-            $cardToc.scrollTop = scrollTop + (offset - middlePosition)
-        }
+    if (window.innerWidth < 900) {
+        $cardTocLayout.classList.remove('open')
     }
-
-    // 處理 hexo-blog-encrypt 事件
-    $cardToc.style.display = 'block'
-}
-
-addEventListenerPjax(window, 'scroll', tocScrollFn, { passive: true })
+})
