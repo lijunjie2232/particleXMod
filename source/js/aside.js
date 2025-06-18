@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
     * toc,anchor
     */
-    const newTocNode = (level, idStack, item) => {
+    const newTocNode = (level, idStack, item, index) => {
         const li = document.createElement('li')
         li.className = 'toc-item toc-level-' + level
         const link_span = document.createElement('span')
@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         link_span.addEventListener('click', (e) => {
             e.preventDefault();
             scrollToDest(item.top - offsetY + 80);
-            activateFn(item.id)
         }
         )
         const spanNumber = document.createElement('span')
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentNode.classList.add('toc');
         const nodeList = [];
         const idStack = [0];
-        l.forEach(item => {
+        l.forEach((item, index) => {
             level = item.level - idOffset
 
             while (level < idStack.length) {
@@ -57,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentNode.classList.add('toc-child');
                 idStack.push(1);
             }
-            currentNode.appendChild(newTocNode(level, idStack, item));
+            currentNode.appendChild(newTocNode(level, idStack, item, index));
         });
 
         while (idStack.length > 1) {
@@ -71,35 +70,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const scrollToDest = (pos, time = 500) => {
-        try {
-            disableScrollFn = true
+        const currentPos = window.scrollY
+        const isNavFixed = !document.getElementById('menu').classList.contains('hidden')
+        if (currentPos > pos || isNavFixed) pos = pos - 50
 
-            const currentPos = window.scrollY
-            const isNavFixed = !document.getElementById('menu').classList.contains('hidden')
-            if (currentPos > pos || isNavFixed) pos = pos - 50
-
-            if ('scrollBehavior' in document.documentElement.style) {
-                window.scrollTo({
-                    top: pos,
-                    behavior: 'smooth'
-                })
-                return
-            }
-
-            const startTime = performance.now()
-            const animate = currentTime => {
-                const timeElapsed = currentTime - startTime
-                const progress = Math.min(timeElapsed / time, 1)
-                window.scrollTo(0, currentPos + (pos - currentPos) * progress)
-                if (progress < 1) {
-                    requestAnimationFrame(animate)
-                }
-            }
-            requestAnimationFrame(animate)
+        if ('scrollBehavior' in document.documentElement.style) {
+            window.scrollTo({
+                top: pos,
+                behavior: 'smooth'
+            })
+            return
         }
-        catch (_) {
+
+        const startTime = performance.now()
+        const animate = currentTime => {
+            const timeElapsed = currentTime - startTime
+            const progress = Math.min(timeElapsed / time, 1)
+            window.scrollTo(0, currentPos + (pos - currentPos) * progress)
+            if (progress < 1) {
+                requestAnimationFrame(animate)
+            }
         }
-        disableScrollFn = false
+        requestAnimationFrame(animate)
     }
 
     const getEleTop = (ele) => {
@@ -129,13 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const findHeadPosition = (top) => {
 
-        // console.log(top)
-
-        // const offsetY = window.innerHeight * 0.382
-        // const offsetY = 0;
-
-
-
         let currentId = encodeURI($articleList[0].id)
 
         let currentIndex = 0
@@ -154,37 +139,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        if (detectItem === currentIndex) return
+        // if (detectItem === currentIndex) return
 
         if (isAnchor) updateAnchor(currentId)
 
         detectItem = currentIndex
-
-        activateFn($tocLink[currentIndex].id)
-    }
-
-    const activateFn = (id) => {
         $tocLink = $cardToc.querySelectorAll('.toc-link')
 
         if (isToc) {
+            console.log(detectItem)
 
             document.getElementById("toc-content").querySelectorAll('.toc-active').forEach(i => i.classList.remove('toc-active'))
 
-            const currentActive = document.getElementById(id)
-            currentActive.classList.add('toc-active')
+            if (currentId) {
+                const currentActive = document.getElementById($tocLink[currentIndex].id)
+                currentActive.classList.add('toc-active')
 
-            // scroll to active toc in aside bar
-            // setTimeout(() => autoScrollToc(currentActive), 0)
+                // scroll to active toc in aside bar
+                // setTimeout(() => autoScrollToc(currentActive), 0)
 
-            if (!isExpand) {
-                let parent = currentActive.parentNode
-                while (!parent.matches('.toc')) {
-                    if (parent.matches('li')) parent.classList.add('toc-active')
-                    parent = parent.parentNode
+                if (!isExpand) {
+                    let parent = currentActive.parentNode
+                    while (!parent.matches('.toc')) {
+                        if (parent.matches('li')) parent.classList.add('toc-active')
+                        parent = parent.parentNode
+                    }
                 }
             }
         }
     }
+
 
     const throttle = (func, wait, options = {}) => {
         let timeout, context, args;
@@ -253,15 +237,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // main of scroll
     const tocScrollFn = throttle(() => {
-        if (disableScrollFn) {
-            const currentTop = window.scrollY || document.documentElement.scrollTop
-            document.getElementById('toc-percentage').textContent = getScrollPercent(currentTop, $article)
-            findHeadPosition(currentTop + offsetY)
-        }
+        const currentTop = window.scrollY || document.documentElement.scrollTop
+        document.getElementById('toc-percentage').textContent = getScrollPercent(currentTop, $article)
+        findHeadPosition(currentTop + offsetY)
     }, 100)
 
     let docHeight, winHeight, headerHeight, contentMath
-    let disableScrollFn = false
     let $tocLink, isExpand
 
     const $article = document.getElementById('content')
@@ -281,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     buildToc($articleList)
 
-    let detectItem = null
+    let detectItem = 0
 
     // const $cardTocLayout = document.getElementById('card-toc')
     const $cardToc = document.getElementById("toc-content")
