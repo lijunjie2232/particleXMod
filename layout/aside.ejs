@@ -16,11 +16,12 @@
         </a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lijunjie2232"><i
             class="fab fa-github"></i><span> My Github</span></a>
 </div>
-<div class="sticky_layout" id="aside-toc">
+<div class="sticky_layout" id="aside-toc" :class="{ hidden: hiddenMenu }">
     <div class="card-widget" id="card-toc">
-        <div class="item-headline"><i class="fas fa-stream"></i><span>目次</span><span class="toc-percentage">0</span>
+        <div class="item-headline"><i class="fas fa-stream"></i><span>目次</span><span class="toc-percentage"
+                id="toc-percentage">0</span>
         </div>
-        <div class="toc-content" id="toc-content" style="display: block;">
+        <div class="toc-content" id="toc-content" style="display: block;" :class="{ hidden: hiddenMenu }">
         </div>
     </div>
 </div>
