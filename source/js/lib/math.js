@@ -1,3 +1,4 @@
+function renderMathInElement(elem, options)
 mixins.math = {
     created() {
         this.renderers.push(this.math);
