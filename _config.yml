@@ -80,6 +80,12 @@ highlight:
 math:
   enable: true
 
+# Mermaid diagram rendering
+mermaid:
+  enable: true
+  theme: default
+  version: 11
+
 # Image preview
 preview:
   enable: true
