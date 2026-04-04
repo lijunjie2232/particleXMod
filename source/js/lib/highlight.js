@@ -33,7 +33,14 @@ mixins.highlight = {
                 </div>
                 `;
                 let content = i.querySelector(".code-content");
-                hljs.lineNumbersBlock(content, { singleLine: true });
+                // Only apply line numbers if content exists and is a valid element
+                if (content && typeof content.className === 'string') {
+                    try {
+                        hljs.lineNumbersBlock(content, { singleLine: true });
+                    } catch (e) {
+                        console.warn('Failed to apply line numbers:', e);
+                    }
+                }
                 let copycode = i.querySelector(".copycode");
                 copycode.addEventListener("click", async () => {
                     if (this.copying) return;
