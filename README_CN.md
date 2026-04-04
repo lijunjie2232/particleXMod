@@ -30,11 +30,12 @@
     - [3.3.1. Polyfill](#331-polyfill)
     - [3.3.2. 代码高亮](#332-%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE)
     - [3.3.3. 数学渲染](#333-%E6%95%B0%E5%AD%A6%E6%B8%B2%E6%9F%93)
-    - [3.3.4. 图片预览](#334-%E5%9B%BE%E7%89%87%E9%A2%84%E8%A7%88)
-    - [3.3.5. 文章缩略](#335-%E6%96%87%E7%AB%A0%E7%BC%A9%E7%95%A5)
-    - [3.3.6. 文章置顶](#336-%E6%96%87%E7%AB%A0%E7%BD%AE%E9%A1%B6)
-    - [3.3.7. 文章加密](#337-%E6%96%87%E7%AB%A0%E5%8A%A0%E5%AF%86)
-    - [3.3.8. 搜索](#338-%E6%90%9C%E7%B4%A2)
+    - [3.3.4. Mermaid 图表](#334-mermaid-%E5%9B%BE%E8%A1%A8)
+    - [3.3.5. 图片预览](#335-%E5%9B%BE%E7%89%87%E9%A2%84%E8%A7%88)
+    - [3.3.6. 文章缩略](#336-%E6%96%87%E7%AB%A0%E7%BC%A9%E7%95%A5)
+    - [3.3.7. 文章置顶](#337-%E6%96%87%E7%AB%A0%E7%BD%AE%E9%A1%B6)
+    - [3.3.8. 文章加密](#338-%E6%96%87%E7%AB%A0%E5%8A%A0%E5%AF%86)
+    - [3.3.9. 搜索](#339-%E6%90%9C%E7%B4%A2)
   - [3.4. 评论配置](#34-%E8%AF%84%E8%AE%BA%E9%85%8D%E7%BD%AE)
     - [3.4.1. giscus](#341-giscus)
     - [3.4.2. Gitalk](#342-gitalk)
@@ -49,6 +50,7 @@
 - [x] 修复公式渲染
 - [x] 固定首页背景为fixed
 - [x] 加入目录
+- [x] 添加 Mermaid 图表功能（支持中日文、UTF-8 编码）
 
 ---
 
@@ -250,7 +252,82 @@ math:
     enable: false
 ```
 
-### 3.3.4. 图片预览
+### 3.3.4. Mermaid 图表
+
+使用 Mermaid 绘制流程图、时序图、类图等图表。
+
+**配置：**
+
+```yaml
+# Mermaid 图表渲染
+mermaid:
+    enable: true
+    theme: default  # default, forest, dark, neutral
+    version: 11     # Mermaid 版本
+```
+
+**使用方法：**
+
+在文章中使用 `{% mermaid %}` 标签来编写图表：
+
+```markdown
+{% mermaid %}
+graph TB
+    A[开始] --> B{条件判断}
+    B -->|Yes| C[处理1]
+    B -->|No| D[处理2]
+    C --> E[结束]
+    D --> E
+    
+    style A fill:#e1f5ff
+    style E fill:#e1f5ff
+    style B fill:#fff4e1
+    style C fill:#ffe1e1
+    style D fill:#e1ffe1
+{% endmermaid %}
+```
+
+**复杂示例（使用中文和 HTML 标签）：**
+
+```markdown
+{% mermaid %}
+graph TB
+    Input[输入张量<br>batch_size, c1, H, W]
+    Conv[nn.Conv2d<br>c1 → c2<br>k×k, s, p, g, d<br>bias=False]
+    BN[nn.BatchNorm2d<br>通道数：c2<br>训练稳定性与正则化]
+    Act[nn.SiLU<br>激活函数<br>负区域也可梯度回传]
+    Output[输出张量<br>batch_size, c2, H', W']
+    
+    Input --> Conv
+    Conv --> BN
+    BN --> Act
+    Act --> Output
+    
+    style Input fill:#e1f5ff
+    style Output fill:#e1f5ff
+    style Conv fill:#fff4e1
+    style BN fill:#ffe1e1
+    style Act fill:#e1ffe1
+{% endmermaid %}
+```
+
+**支持的图表类型：**
+- 流程图 (flowchart)
+- 时序图 (sequenceDiagram)
+- 类图 (classDiagram)
+- 状态图 (stateDiagram)
+- ER 图 (erDiagram)
+- 甘特图 (gantt)
+- 饼图 (pie)
+- 用户旅程图 (user-journey)
+
+**注意事项：**
+- 图表会自动居中显示
+- 完全支持中文、日文等 UTF-8 字符
+- 可以在节点标签内使用 `<br/>` 进行换行
+- 可以使用 `style` 命令自定义节点样式
+
+### 3.3.5. 图片预览
 
 简单的点击图片放大缩小的预览。
 
@@ -260,7 +337,7 @@ preview:
     enable: true
 ```
 
-### 3.3.5. 文章缩略
+### 3.3.6. 文章缩略
 
 一般来说，缩略展示文档只需要在文档中添加 `<!-- more -->` 即可，缩略内容在显示全文中也会出现。
 
@@ -273,11 +350,11 @@ description: |
     Normal _Italic_ **Strong**
 ```
 
-### 3.3.6. 文章置顶
+### 3.3.7. 文章置顶
 
 在 [Front-Matter](https://hexo.io/docs/front-matter) 里设置 `pinned` 作为置顶参数，越大越靠前，默认为 0。
 
-### 3.3.7. 文章加密
+### 3.3.8. 文章加密
 
 使用 AES 加密算法，在 [Front-Matter](https://hexo.io/docs/front-matter) 里设置 `secret` 作为密码，**使用请安装插件 [Hexo-Helper-Crypto](https://github.com/theme-particlex/hexo-helper-crypto)**。
 
@@ -287,7 +364,7 @@ crypto:
     enable: false
 ```
 
-### 3.3.8. 搜索
+### 3.3.9. 搜索
 
 嵌入到 Archives 中的搜索。
 

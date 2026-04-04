@@ -30,11 +30,12 @@ Note: The style adjustments reflect my personal aesthetic preferences only. If y
       - [3.3.1. Polyfill](#331-polyfill)
       - [3.3.2. Code Highlighting](#332-code-highlighting)
       - [3.3.3. Math Rendering](#333-math-rendering)
-      - [3.3.4. Image Preview](#334-image-preview)
-      - [3.3.5. Article Excerpt](#335-article-excerpt)
-      - [3.3.6. Pin Articles](#336-pin-articles)
-      - [3.3.7. Article Encryption](#337-article-encryption)
-      - [3.3.8. Search](#338-search)
+      - [3.3.4. Mermaid Diagrams](#334-mermaid-diagrams)
+      - [3.3.5. Image Preview](#335-image-preview)
+      - [3.3.6. Article Excerpt](#336-article-excerpt)
+      - [3.3.7. Pin Articles](#337-pin-articles)
+      - [3.3.8. Article Encryption](#338-article-encryption)
+      - [3.3.9. Search](#339-search)
     - [3.4. Comment Systems](#34-comment-systems)
       - [3.4.1. giscus](#341-giscus)
       - [3.4.2. Gitalk](#342-gitalk)
@@ -52,6 +53,7 @@ Note: The style adjustments reflect my personal aesthetic preferences only. If y
 -   [x] Fix math rendering
 -   [x] Set homepage background to `fixed`
 -   [x] Add table of contents
+-   [x] Add Mermaid diagram support (Chinese/Japanese UTF-8 support)
 
 ---
 
@@ -256,7 +258,82 @@ math:
     enable: false
 ```
 
-#### 3.3.4. Image Preview
+#### 3.3.4. Mermaid Diagrams
+
+Draw flowcharts, sequence diagrams, class diagrams, and other charts using Mermaid.
+
+**Configuration:**
+
+```yaml
+# Mermaid diagram rendering
+mermaid:
+    enable: true
+    theme: default  # default, forest, dark, neutral
+    version: 11     # Mermaid version
+```
+
+**Usage:**
+
+Use the `{% mermaid %}` tag in your posts to create diagrams:
+
+```markdown
+{% mermaid %}
+graph TB
+    A[Start] --> B{Condition}
+    B -->|Yes| C[Process 1]
+    B -->|No| D[Process 2]
+    C --> E[End]
+    D --> E
+    
+    style A fill:#e1f5ff
+    style E fill:#e1f5ff
+    style B fill:#fff4e1
+    style C fill:#ffe1e1
+    style D fill:#e1ffe1
+{% endmermaid %}
+```
+
+**Complex Example (with non-English characters and HTML tags):**
+
+```markdown
+{% mermaid %}
+graph TB
+    Input[Input Tensor<br>batch_size, c1, H, W]
+    Conv[nn.Conv2d<br>c1 → c2<br>k×k, s, p, g, d<br>bias=False]
+    BN[nn.BatchNorm2d<br>Channels: c2<br>Training Stability & Regularization]
+    Act[nn.SiLU<br>Activation Function<br>Gradient Backprop in Negative Region]
+    Output[Output Tensor<br>batch_size, c2, H', W']
+    
+    Input --> Conv
+    Conv --> BN
+    BN --> Act
+    Act --> Output
+    
+    style Input fill:#e1f5ff
+    style Output fill:#e1f5ff
+    style Conv fill:#fff4e1
+    style BN fill:#ffe1e1
+    style Act fill:#e1ffe1
+{% endmermaid %}
+```
+
+**Supported Diagram Types:**
+- Flowchart (flowchart)
+- Sequence Diagram (sequenceDiagram)
+- Class Diagram (classDiagram)
+- State Diagram (stateDiagram)
+- ER Diagram (erDiagram)
+- Gantt Chart (gantt)
+- Pie Chart (pie)
+- User Journey (user-journey)
+
+**Notes:**
+- Diagrams are automatically centered
+- Full support for UTF-8 characters (Chinese, Japanese, etc.)
+- Use `<br/>` for line breaks within node labels
+- Customize node styles using the `style` command
+
+#### 3.3.5. Image Preview
 
 Simple click-to-preview functionality for images (zoom in/out).
 
@@ -266,7 +343,7 @@ preview:
     enable: true
 ```
 
-#### 3.3.5. Article Excerpt
+#### 3.3.6. Article Excerpt
 
 Usually, you only need to insert `<!-- more -->` in a post to generate an excerpt. This content also appears in the full view.
 
@@ -277,11 +354,11 @@ description: |
     Normal _Italic_ **Strong**
 ```
 
-#### 3.3.6. Pin Articles
+#### 3.3.7. Pin Articles
 
 Set `pinned` in [Front-Matter](https://hexo.io/docs/front-matter) to pin articles. Higher values appear earlier. Default is `0`.
 
-#### 3.3.7. Article Encryption
+#### 3.3.8. Article Encryption
 
 Uses AES encryption. Set `secret` in [Front-Matter](https://hexo.io/docs/front-matter) as password.  
 **Requires installing plugin [Hexo-Helper-Crypto](https://github.com/theme-particlex/hexo-helper-crypto)**.
@@ -292,7 +369,7 @@ crypto:
     enable: false
 ```
 
-#### 3.3.8. Search
+#### 3.3.9. Search
 
 Embedded search within Archives.
 
