@@ -15,13 +15,13 @@ const app = Vue.createApp({
             this.loading = false;
         });
     },
-    mounted() {
+    async mounted() {
         window.addEventListener("scroll", this.handleScroll, true);
-        this.render();
+        await this.render();
     },
     methods: {
-        render() {
-            for (let i of this.renderers) i();
+        async render() {
+            for (let i of this.renderers) await i();
         },
         handleScroll() {
             let wrap = this.$refs.homePostsWrap;
