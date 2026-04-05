@@ -446,12 +446,67 @@
     top: 0;
     width: 100vw;
     z-index: 1005;
+    cursor: zoom-out;
 }
 #preview-content {
     box-shadow: 0 0 50px 10px #d9d9d980;
     margin: auto;
     max-height: 95%;
     max-width: 95%;
+    transition: transform 0.2s ease;
+    user-select: none;
+}
+
+.preview-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1006;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.preview-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    color: #333;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+
+.preview-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.preview-btn:active {
+    transform: scale(0.95);
+}
+
+.prev-btn,
+.next-btn {
+    font-size: 24px;
+}
+
+.image-counter {
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-weight: 500;
 }
 #search-bar {
     margin-bottom: 50px;
