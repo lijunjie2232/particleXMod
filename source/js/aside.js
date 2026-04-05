@@ -248,17 +248,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const $article = document.getElementById('content')
     const offsetY = window.innerHeight * 0.382
     // const offsetY = window.innerHeight / 2
-    const $articleList = Array.from(
-        $article.querySelectorAll('h1,h2,h3,h4,h5,h6')
-    ).map(
-        item => ({
-            tag: item.tagName,
-            id: item.id,
-            top: getEleTop(item),
-            textContent: item.textContent,
-            level: Number(item.tagName.slice(1)),
-        })
-    )
+    
+    // Function to build article list with current positions
+    const buildArticleList = () => {
+        return Array.from(
+            $article.querySelectorAll('h1,h2,h3,h4,h5,h6')
+        ).map(
+            item => ({
+                tag: item.tagName,
+                id: item.id,
+                top: getEleTop(item),
+                textContent: item.textContent,
+                level: Number(item.tagName.slice(1)),
+            })
+        )
+    }
+    
+    let $articleList = buildArticleList()
 
     buildToc($articleList)
 
@@ -269,5 +275,24 @@ document.addEventListener('DOMContentLoaded', () => {
     isExpand = $cardToc.classList.contains('is-expand')
 
     addEventListener(window, 'scroll', tocScrollFn, { passive: true })
+
+    // Expose function to rebuild TOC after dynamic content changes (e.g., Mermaid charts)
+    window.rebuildTocAfterMermaid = () => {
+        console.log('Rebuilding TOC with updated positions...');
+        
+        // Rebuild article list with new positions
+        $articleList = buildArticleList();
+        console.log(`Updated article list with ${$articleList.length} headings`);
+        
+        // Clear existing TOC
+        const tocContent = document.getElementById("toc-content");
+        if (tocContent) {
+            tocContent.innerHTML = '';
+            
+            // Rebuild TOC with updated positions
+            buildToc($articleList);
+            console.log('TOC rebuilt successfully');
+        }
+    };
 
 });

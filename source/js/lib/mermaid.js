@@ -73,6 +73,12 @@ mixins.mermaid = {
             }
             
             console.log('=== Mermaid rendering completed ===');
+            
+            // Rebuild TOC after mermaid rendering to update heading positions
+            if (typeof rebuildTocAfterMermaid === 'function') {
+                console.log('Rebuilding TOC after Mermaid rendering...');
+                rebuildTocAfterMermaid();
+            }
         },
     },
 };
