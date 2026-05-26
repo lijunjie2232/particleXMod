@@ -18,6 +18,7 @@ const app = Vue.createApp({
     async mounted() {
         window.addEventListener("scroll", this.handleScroll, true);
         await this.render();
+        this.initFloatingAside();
     },
     methods: {
         async render() {
@@ -37,6 +38,39 @@ const app = Vue.createApp({
                 else wrap.style.top = "-80px";
             }
             this.scrollTop = newScrollTop;
+        },
+        initFloatingAside() {
+            // Add click-to-toggle functionality for floating aside on medium screens
+            const asideContent = document.getElementById('aside-content');
+            if (!asideContent) return;
+            
+            // Check if we're in the medium screen range (901-1200px)
+            const checkMediaQuery = () => {
+                return window.matchMedia('(min-width: 901px) and (max-width: 1200px)').matches;
+            };
+            
+            // Toggle aside visibility on click
+            const toggleAside = (e) => {
+                if (!checkMediaQuery()) return;
+                
+                // Prevent toggling when clicking inside the aside content itself
+                if (e.target.closest('.card-widget') || e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                    return;
+                }
+                
+                asideContent.classList.toggle('expanded');
+            };
+            
+            // Add click event to the pseudo-element (handled via the ::before)
+            asideContent.addEventListener('click', toggleAside);
+            
+            // Also add keyboard support
+            document.addEventListener('keydown', (e) => {
+                if (!checkMediaQuery()) return;
+                if (e.key === 'Escape' && asideContent.classList.contains('expanded')) {
+                    asideContent.classList.remove('expanded');
+                }
+            });
         },
     },
 });
