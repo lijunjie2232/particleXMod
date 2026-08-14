@@ -4,32 +4,30 @@ mixins.math = {
     },
     methods: {
         async math() {
-            // Check if KaTeX auto-render is loaded
-            if (typeof renderMathInElement === 'undefined') {
-                console.warn('KaTeX auto-render not loaded yet, waiting...');
-                // Wait for KaTeX to load with retry mechanism
-                for (let i = 0; i < 10; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    if (typeof renderMathInElement !== 'undefined') {
-                        console.log('KaTeX auto-render loaded, proceeding with math rendering');
-                        break;
-                    }
+            if (typeof renderMathInElement === "undefined") {
+                for (let i = 0; i < 15; i++) {
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    if (typeof renderMathInElement !== "undefined") break;
                 }
-                
-                if (typeof renderMathInElement === 'undefined') {
-                    console.error('KaTeX auto-render failed to load after retries');
+                if (typeof renderMathInElement === "undefined") {
+                    console.warn("KaTeX auto-render unavailable");
                     return;
                 }
             }
-            
-            renderMathInElement(document.body, {
-                delimiters: [
-                    { left: "$$", right: "$$", display: true },
-                    { left: "$", right: "$", display: false },
-                    { left: "\\(", right: "\\)", display: false },
-                    { left: "\\[", right: "\\]", display: true },
-                ],
-            });
+
+            try {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false },
+                        { left: "\\(", right: "\\)", display: false },
+                        { left: "\\[", right: "\\]", display: true },
+                    ],
+                    throwOnError: false,
+                });
+            } catch (e) {
+                console.warn("KaTeX render error:", e);
+            }
         },
     },
 };

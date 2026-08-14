@@ -1,15 +1,19 @@
 <%
-    let posts = site.posts,
-        current = (page.current - 1) * config.index_generator.per_page;
-    posts.data.sort((a, b) => {
-        let x = a.pinned ?? 0,
-            y = b.pinned ?? 0;
+    const allPosts = [...site.posts.data].sort((a, b) => {
+        const x = a.pinned ?? 0;
+        const y = b.pinned ?? 0;
         return x === y ? b.date - a.date : y - x;
     });
-    posts = posts.slice(current, config.index_generator.per_page + current);
+    const current = (page.current - 1) * config.index_generator.per_page;
+    const posts = allPosts.slice(current, config.index_generator.per_page + current);
+    const colorHash = (str) => {
+        let h = 0;
+        for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+        return theme.colors[h % theme.colors.length];
+    };
 %>
 <% posts.forEach((post) => { %>
-<div class="post">
+<article class="post">
     <a href="<%- url_for(post.path) %>">
         <h2 class="post-title"><%= post.title %></h2>
     </a>
@@ -31,34 +35,28 @@
             <%- date(post.date, "YYYY/M/D") %>
         </span>
         <% if (theme.crypto.enable && typeof post.secret !== "undefined") { %>
-        <span class="special">
+        <span class="special" title="暗号化された記事">
             <i class="fa-solid fa-lock fa-fw"></i>
         </span>
         <% } %>
         <% if (typeof post.pinned !== "undefined") { %>
-        <span class="special">
-            <i class="fa-solid fa-grip-vertical fa-fw"></i>
+        <span class="special" title="ピン留め">
+            <i class="fa-solid fa-thumbtack fa-fw"></i>
         </span>
         <% } %>
     </div>
+    <% if (post.tags.data.length !== 0) { %>
     <div class="post-tags home-post-tags">
-        <% if (post.tags.data.length !== 0) { %>
         <span class="icon">
             <i class="fa-solid fa-tags fa-fw"></i>
         </span>
-        <% } %>
-        <% let prev; %>
         <% post.tags.data.forEach((tag) => { %>
         <span class="tag">
-            <%
-                const colors = theme.colors.filter((color) => color !== prev);
-                let id = Math.floor(Math.random() * colors.length);
-                prev = colors[id];
-            %>
-            <a href="<%- url_for(tag.path) %>" style="color: <%- colors[id] %>"><%= tag.name %></a>
+            <a href="<%- url_for(tag.path) %>" style="color: <%- colorHash(tag.name) %>"><%= tag.name %></a>
         </span>
         <% }); %>
     </div>
+    <% } %>
     <div class="description">
         <div class="content" v-pre>
             <% if (typeof post.description !== "undefined") { %>
@@ -71,5 +69,5 @@
         </div>
     </div>
     <a href="<%- url_for(post.path) %>" class="go-post">続きを読む</a>
-</div>
+</article>
 <% }); %>

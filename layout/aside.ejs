@@ -1,35 +1,46 @@
 <div class="card-widget card-info text-center" id="card-info">
     <div class="avatar-img">
-        <img src="/images/avatar.jpeg" alt="avatar" />
+        <img src="<%- url_for(theme.avatar) %>" alt="<%= config.author %>" loading="lazy" />
     </div>
-    <div class="author-info-name">lijunjie2232</div>
-    <div class="author-info-description">個人技術ブログ</div>
-    <div class="site-data"><a href="/archives/">
+    <div class="author-info-name"><%= config.author %></div>
+    <div class="author-info-description"><%= config.description %></div>
+    <div class="site-data">
+        <a href="<%- url_for('/archives/') %>">
             <div class="headline">記事</div>
-            <div class="length-num">18</div>
-        </a><a href="/tags/">
+            <div class="length-num"><%= site.posts.length %></div>
+        </a>
+        <a href="<%- url_for('/tags/') %>">
             <div class="headline">タグ</div>
-            <div class="length-num">19</div>
-        </a><a href="/categories/">
+            <div class="length-num"><%= site.tags.length %></div>
+        </a>
+        <a href="<%- url_for('/categories/') %>">
             <div class="headline">カテゴリ</div>
-            <div class="length-num">3</div>
-        </a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lijunjie2232"><i
-            class="fab fa-github"></i><span> My Github</span></a>
+            <div class="length-num"><%= site.categories.length %></div>
+        </a>
+    </div>
+    <% if (theme.card && theme.card.friendLinks) { %>
+    <% Object.entries(theme.card.friendLinks).forEach(([key, value]) => { %>
+    <a class="card-info-btn" target="_blank" rel="noopener noreferrer" href="<%- url_for(value) %>">
+        <i class="fab fa-github"></i><span><%= key %></span>
+    </a>
+    <% }); %>
+    <% } %>
 </div>
+<% if (theme.toc && theme.toc.enable) { %>
 <div class="sticky_layout" id="aside-toc" :class="{ hidden: hiddenMenu }">
     <div class="card-widget" id="card-toc">
-        <div class="item-headline"><i class="fas fa-stream"></i><span>目次</span><span class="toc-percentage"
-                id="toc-percentage">0</span>
+        <div class="item-headline">
+            <i class="fas fa-stream"></i>
+            <span>目次</span>
+            <% if (theme.toc.percentage) { %>
+            <span class="toc-percentage" id="toc-percentage">0%</span>
+            <% } %>
+            <button type="button" class="toc-close-btn" @click="closeMobileAside" aria-label="目次を閉じる">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
-        <div class="toc-content" id="toc-content" style="display: block;" :class="{ hidden: hiddenMenu }">
+        <div class="toc-content" id="toc-content" v-pre>
         </div>
     </div>
 </div>
-
-<script>
-    const isToc = <%= theme.toc.enable %>;
-    const isAnchor = <%= theme.anchor.enable %>;
-    const isTocPercent = <%= theme.toc.percentage %>;
-</script>
-
-<script src="<%- url_for('/js/aside.js') %>"></script>
+<% } %>

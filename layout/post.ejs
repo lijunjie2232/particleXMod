@@ -1,46 +1,70 @@
+<%
+    const plainText = page.content ? strip_html(page.content).replace(/\s+/g, " ").trim() : "";
+    const cjkCount = (plainText.match(/[\u3000-\u9fff\uf900-\ufaff]/g) || []).length;
+    const nonCjkWords = plainText.replace(/[\u3000-\u9fff\uf900-\ufaff]/g, " ").split(/\s+/).filter(Boolean).length;
+    const totalCount = cjkCount + nonCjkWords;
+    const readMinutes = Math.max(1, Math.ceil(totalCount / 400));
+    const pubDate = date(page.date, "YYYY/M/D");
+    const updDate = page.updated ? date(page.updated, "YYYY/M/D") : null;
+    const colorHash = (str) => {
+        let h = 0;
+        for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+        return theme.colors[h % theme.colors.length];
+    };
+%>
 <div class="article-wrap" id="article-wrap">
-    <div class="article" id="article">
-        <div>
+    <article class="article" id="article">
+        <header class="article-header">
             <h1><%= page.title %></h1>
-        </div>
-        <div class="info">
-            <span class="date">
-                <span class="icon">
-                    <i class="fa-solid fa-calendar fa-fw"></i>
-                </span>
-                <%= date(page.date, "YYYY/M/D") %>
-            </span>
-            <% if (page.categories && page.categories.data.length !== 0) { %>
-            <span class="category">
-                <a href="<%- url_for(page.categories.data[0].path) %>">
+            <div class="info">
+                <span class="date" title="公開日">
                     <span class="icon">
-                        <i class="fa-solid fa-bookmark fa-fw"></i>
+                        <i class="fa-solid fa-calendar fa-fw"></i>
                     </span>
-                    <%= page.categories.data[0].name %>
-                </a>
-            </span>
-            <% } %>
-            <% if (page.tags && page.tags.data.length !== 0) { %>
-            <span class="tags">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
+                    <%= pubDate %>
                 </span>
-                <% let prev; %>
-                <% page.tags.data.forEach((tag) => { %>
-                <span class="tag">
-                    <%
-                        const colors = theme.colors.filter((color) => color !== prev);
-                        let id = Math.floor(Math.random() * colors.length);
-                        prev = colors[id];
-                    %>
-                    <a href="<%- url_for(tag.path) %>" style="color: <%- colors[id] %>">
-                        <%= tag.name %>
+                <% if (updDate && updDate !== pubDate) { %>
+                <span class="date updated-date" title="更新日">
+                    <span class="icon">
+                        <i class="fa-solid fa-clock-rotate-left fa-fw"></i>
+                    </span>
+                    <%= updDate %>
+                </span>
+                <% } %>
+                <% if (totalCount > 0) { %>
+                <span class="date reading-time" title="読了目安">
+                    <span class="icon">
+                        <i class="fa-solid fa-book-open fa-fw"></i>
+                    </span>
+                    約 <%= readMinutes %> 分
+                </span>
+                <% } %>
+                <% if (page.categories && page.categories.data.length !== 0) { %>
+                <span class="category">
+                    <a href="<%- url_for(page.categories.data[0].path) %>">
+                        <span class="icon">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </span>
+                        <%= page.categories.data[0].name %>
                     </a>
                 </span>
-                <% }); %>
-            </span>
-            <% } %>
-        </div>
+                <% } %>
+                <% if (page.tags && page.tags.data.length !== 0) { %>
+                <span class="tags">
+                    <span class="icon">
+                        <i class="fa-solid fa-tags fa-fw"></i>
+                    </span>
+                    <% page.tags.data.forEach((tag) => { %>
+                    <span class="tag">
+                        <a href="<%- url_for(tag.path) %>" style="color: <%- colorHash(tag.name) %>">
+                            <%= tag.name %>
+                        </a>
+                    </span>
+                    <% }); %>
+                </span>
+                <% } %>
+            </div>
+        </header>
         <% if (theme.crypto.enable && typeof page.secret !== "undefined") { %>
         <% const CryptoJS = getCryptoJS(); %>
         <input
@@ -54,12 +78,30 @@
             v-model="crypto"
         />
         <transition name="fade">
-            <div class="content" ref="content" v-show="cryptoStatus === 'success'"></div>
+            <div class="content" ref="content" id="content" v-show="cryptoStatus === 'success'"></div>
         </transition>
         <% } else { %>
         <div class="content" v-pre id="content">
             <%- page.content %>
         </div>
+        <% } %>
+        <% if (is_post() && (page.prev || page.next)) { %>
+        <nav class="post-nav" aria-label="前後の記事">
+            <% if (page.prev) { %>
+            <a class="post-nav-item post-nav-prev" href="<%- url_for(page.prev.path) %>">
+                <span class="post-nav-label"><i class="fa-solid fa-arrow-left fa-fw"></i> 前の記事</span>
+                <span class="post-nav-title"><%= page.prev.title %></span>
+            </a>
+            <% } else { %>
+            <div class="post-nav-spacer"></div>
+            <% } %>
+            <% if (page.next) { %>
+            <a class="post-nav-item post-nav-next" href="<%- url_for(page.next.path) %>">
+                <span class="post-nav-label">次の記事 <i class="fa-solid fa-arrow-right fa-fw"></i></span>
+                <span class="post-nav-title"><%= page.next.title %></span>
+            </a>
+            <% } %>
+        </nav>
         <% } %>
         <% if (page.comments) { %>
         <% if (theme.gitalk.enable) { %>
@@ -83,8 +125,9 @@
         </div>
         <% } %>
         <% } %>
-    </div>
-    <div class="aside-content" id="aside-content">
+    </article>
+    <aside class="aside-content" id="aside-content" aria-label="サイドバー">
         <%- partial("aside") %>
-    </div>
+    </aside>
+    <div id="aside-backdrop" @click="closeMobileAside"></div>
 </div>

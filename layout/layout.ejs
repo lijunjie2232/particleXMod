@@ -5,89 +5,74 @@
     if (is_category() || page.type === "categories") type = "categories";
     if (is_tag() || page.type === "tags") type = "tags";
     if (is_archive()) type = "archives";
-    let title = page.title + " | " + config.title;
+    let title = (page.title ? page.title + " | " : "") + config.title;
     if (is_home()) title = config.title;
     if (is_post() || is_page()) title = page.title + " | " + config.title;
     if (is_category()) title = "Categories: " + page.category + " | " + config.title;
     if (is_tag()) title = "Tags: " + page.tag + " | " + config.title;
     if (is_archive()) title = "Archives | " + config.title;
+    const htmlLang = Array.isArray(config.language) ? config.language[0] : (config.language || "en");
+    const pageDescription = page.description
+        ? strip_html(page.description).replace(/\s+/g, " ").trim().slice(0, 160)
+        : (page.excerpt ? strip_html(page.excerpt).replace(/\s+/g, " ").trim().slice(0, 160) : config.description);
+    const pageUrl = config.url ? config.url.replace(/\/$/, "") + url_for(page.path || "") : "";
 %>
 <!DOCTYPE html>
-<html lang="<%- config.language %>">
+<html lang="<%- htmlLang %>">
 <head>
     <meta charset="utf-8" />
     <title><%= title %></title>
     <meta name="author" content="<%- config.author %>" />
-    <meta name="description" content="<%- config.description %>" />
+    <meta name="description" content="<%- pageDescription %>" />
+    <% if (config.keywords) { %>
     <meta name="keywords" content="<%- config.keywords %>" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
-    />
+    <% } %>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content="<%= title %>" />
+    <meta property="og:type" content="<%= type === 'post' ? 'article' : 'website' %>" />
+    <meta property="og:description" content="<%- pageDescription %>" />
+    <% if (pageUrl) { %>
+    <meta property="og:url" content="<%- pageUrl %>" />
+    <% } %>
     <link rel="icon" href="<%- url_for(theme.avatar) %>" />
-
+    <% if (!theme.darkmode || theme.darkmode.enable !== false) { %>
     <script>
-        const saveToLocal = {
-            set: (key, value, ttl) => {
-                if (!ttl) return
-                const expiry = Date.now() + ttl * 86400000
-                localStorage.setItem(key, JSON.stringify({ value, expiry }))
-            },
-            get: key => {
-                const itemStr = localStorage.getItem(key)
-                if (!itemStr) return undefined
-                const { value, expiry } = JSON.parse(itemStr)
-                if (Date.now() > expiry) {
-                    localStorage.removeItem(key)
-                    return undefined
+        (function () {
+            try {
+                var saved = localStorage.getItem("particlex-theme");
+                var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+                if (saved === "dark" || (!saved && prefersDark)) {
+                    document.documentElement.setAttribute("data-theme", "dark");
                 }
-                return value
-            }
-        }
-        window.btf = {
-            saveToLocal,
-            getScript: (url, attr = {}) => new Promise((resolve, reject) => {
-                const script = document.createElement('script')
-                script.src = url
-                script.async = true
-                Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
-                script.onload = script.onreadystatechange = () => {
-                    if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
-                }
-                script.onerror = reject
-                document.head.appendChild(script)
-            }),
-            getCSS: (url, id) => new Promise((resolve, reject) => {
-                const link = document.createElement('link')
-                link.rel = 'stylesheet'
-                link.href = url
-                if (id) link.id = id
-                link.onload = link.onreadystatechange = () => {
-                    if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
-                }
-                link.onerror = reject
-                document.head.appendChild(link)
-            }),
-            addGlobalFn: (key, fn, name = false, parent = window) => {
-                if (!<%= theme.pjax.enable %> && key.startsWith('pjax')) return
-                const globalFn = parent.globalFn || {}
-                globalFn[key] = globalFn[key] || {}
-                globalFn[key][name || Object.keys(globalFn[key]).length] = fn
-                parent.globalFn = globalFn
-            }
-        }
+            } catch (e) {}
+        })();
     </script>
-    <!-- <script src="<%- url_for('/js/utils.js') %>"></script> -->
+    <% } %>
+    <script>
+        window.PARTICLEX_CONFIG = {
+            mermaidTheme: "<%- (theme.mermaid && theme.mermaid.theme) ? theme.mermaid.theme : 'default' %>",
+            highlightStyle: "<%- (theme.highlight && theme.highlight.style) ? theme.highlight.style : 'github' %>",
+            darkmode: <%= (!theme.darkmode || theme.darkmode.enable !== false) ? "true" : "false" %>,
+            toc: {
+                enable: <%= (theme.toc && theme.toc.enable) ? "true" : "false" %>,
+                anchor: <%= (theme.anchor && theme.anchor.enable) ? "true" : "false" %>,
+                percentage: <%= (theme.toc && theme.toc.percentage) ? "true" : "false" %>
+            }
+        };
+    </script>
     <%- partial("import", { type }) %>
 </head>
 <body>
+    <% if (type === "post") { %>
+    <div id="reading-progress" aria-hidden="true"></div>
+    <% } %>
     <div id="layout">
         <transition name="fade">
             <div id="loading" v-show="loading">
                 <div id="loading-circle">
                     <h2>LOADING</h2>
                     <p>読み込みが遅い場合はキャッシュを有効にしてください。ブラウザはデフォルトで有効になっています</p>
-                    <img src="<%- url_for(theme.loading) %>" />
+                    <img src="<%- url_for(theme.loading) %>" alt="Loading" />
                 </div>
             </div>
         </transition>
@@ -96,33 +81,56 @@
             <%- partial(type) %>
             <%- partial("footer") %>
         </div>
+        <div id="floating-actions" :class="{ visible: showBackToTop }">
+            <% if (type === "post" && theme.toc && theme.toc.enable) { %>
+            <button
+                type="button"
+                id="mobile-toc-btn"
+                class="floating-btn"
+                @click="toggleMobileAside"
+                aria-label="目次を開く"
+                title="目次"
+            >
+                <i class="fa-solid fa-list-ul fa-fw"></i>
+            </button>
+            <% } %>
+            <button
+                type="button"
+                id="back-to-top"
+                class="floating-btn"
+                @click="scrollToTop"
+                aria-label="ページ上部へ戻る"
+                title="トップへ戻る"
+            >
+                <i class="fa-solid fa-arrow-up fa-fw"></i>
+            </button>
+        </div>
         <% if (theme.preview.enable) { %>
         <transition name="fade">
-            <div id="preview" ref="preview" v-show="previewShow">
+            <div id="preview" ref="preview" v-show="previewShow" role="dialog" aria-modal="true" aria-label="Image preview">
                 <div class="preview-controls">
-                    <button class="preview-btn prev-btn" @click.stop="prevImage" title="Previous Image (←)">‹</button>
-                    <button class="preview-btn next-btn" @click.stop="nextImage" title="Next Image (→)">›</button>
-                    <button class="preview-btn zoom-in-btn" @click.stop="zoomIn" title="Zoom In (+)">+</button>
-                    <button class="preview-btn zoom-out-btn" @click.stop="zoomOut" title="Zoom Out (-)">−</button>
-                    <button class="preview-btn reset-btn" @click.stop="resetZoom" title="Reset Zoom (0)">⟲</button>
-                    <button class="preview-btn close-btn" @click.stop="previewShow = false" title="Close (Esc)">✕</button>
+                    <button type="button" class="preview-btn prev-btn" @click.stop="prevImage" title="Previous Image (←)" aria-label="Previous Image">‹</button>
+                    <button type="button" class="preview-btn next-btn" @click.stop="nextImage" title="Next Image (→)" aria-label="Next Image">›</button>
+                    <button type="button" class="preview-btn zoom-in-btn" @click.stop="zoomIn" title="Zoom In (+)" aria-label="Zoom In">+</button>
+                    <button type="button" class="preview-btn zoom-out-btn" @click.stop="zoomOut" title="Zoom Out (-)" aria-label="Zoom Out">−</button>
+                    <button type="button" class="preview-btn reset-btn" @click.stop="resetZoom" title="Reset Zoom (0)" aria-label="Reset Zoom">⟲</button>
+                    <button type="button" class="preview-btn close-btn" @click.stop="previewShow = false" title="Close (Esc)" aria-label="Close Preview">✕</button>
                     <div class="image-counter" v-if="images.length > 0">{{ currentImageIndex + 1 }} / {{ images.length }}</div>
                 </div>
-                <img id="preview-content" ref="previewContent" :style="{ cursor: scale > 1 ? 'grab' : 'default' }" />
+                <img id="preview-content" ref="previewContent" alt="" :style="{ cursor: scale > 1 ? 'grab' : 'default' }" />
             </div>
         </transition>
         <% } %>
     </div>
-    <script src="<%- url_for('/js/main.js') %>"></script>
+    <% if (type === "post") { %>
+    <script defer src="<%- url_for('/js/aside.js') %>"></script>
+    <% } %>
+    <script defer src="<%- url_for('/js/main.js') %>"></script>
     <% if (type === "post" && page.comments) { %>
     <%- partial("comment") %>
     <% } %>
-    <% if (theme.pjax.enable) { %>
-        <script src="<%- url_for('/js/lib/pjax.js') %>"></script>
+    <% if (theme.canvas.enable) { %>
+    <script defer type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/canvas-nest.js/1.0.1/canvas-nest.min.js"></script>
     <% } %>
 </body>
-<% if (theme.canvas.enable) { %>
-    <!-- <script src="https://cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script> -->
-    <script type="text/javascript"src="https://cdnjs.cloudflare.com/ajax/libs/canvas-nest.js/1.0.1/canvas-nest.min.js"></script>
-<% } %>
 </html>

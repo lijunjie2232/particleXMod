@@ -1,19 +1,44 @@
-<div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
-    <nav id="desktop-menu">
-        <a class="title" href="<%- config.root %>">
-            <span><%= config.title.toUpperCase() %></span>
-        </a>
-        <% Object.entries(theme.menu).forEach(([key, value]) => { %>
-        <a href="<%- url_for(value.link) %>">
-            <i class="fa-<%- value.theme %> fa-<%- value.name %> fa-fw"></i>
-            <span>&ensp;<%= key %></span>
-        </a>
-        <% }); %>
+<div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor }">
+    <nav id="desktop-menu" aria-label="メインナビゲーション">
+        <div class="menu-links">
+            <a class="title" href="<%- config.root %>">
+                <span><%= config.title.toUpperCase() %></span>
+            </a>
+            <% Object.entries(theme.menu).forEach(([key, value]) => { %>
+            <a href="<%- url_for(value.link) %>">
+                <i class="fa-<%- value.theme %> fa-<%- value.name %> fa-fw"></i>
+                <span>&ensp;<%= key %></span>
+            </a>
+            <% }); %>
+        </div>
+        <% if (!theme.darkmode || theme.darkmode.enable !== false) { %>
+        <button
+            type="button"
+            class="theme-toggle"
+            @click="toggleDarkMode"
+            :aria-label="darkMode ? 'ライトモードに切替' : 'ダークモードに切替'"
+            :title="darkMode ? 'ライトモードに切替' : 'ダークモードに切替'"
+        >
+            <i :class="darkMode ? 'fa-solid fa-sun fa-fw' : 'fa-solid fa-moon fa-fw'"></i>
+        </button>
+        <% } %>
     </nav>
-    <nav id="mobile-menu">
-        <div class="title" @click="showMenuItems = !showMenuItems">
-            <i class="fa-solid fa-bars fa-fw"></i>
-            <span>&emsp;<%= config.title.toUpperCase() %></span>
+    <nav id="mobile-menu" aria-label="モバイルナビゲーション">
+        <div class="mobile-menu-bar">
+            <button type="button" class="title" @click="showMenuItems = !showMenuItems" aria-label="メニューを開閉">
+                <i class="fa-solid fa-bars fa-fw"></i>
+                <span>&emsp;<%= config.title.toUpperCase() %></span>
+            </button>
+            <% if (!theme.darkmode || theme.darkmode.enable !== false) { %>
+            <button
+                type="button"
+                class="theme-toggle mobile-theme-toggle"
+                @click="toggleDarkMode"
+                :aria-label="darkMode ? 'ライトモードに切替' : 'ダークモードに切替'"
+            >
+                <i :class="darkMode ? 'fa-solid fa-sun fa-fw' : 'fa-solid fa-moon fa-fw'"></i>
+            </button>
+            <% } %>
         </div>
         <transition name="slide">
             <div class="items" v-show="showMenuItems">

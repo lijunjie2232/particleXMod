@@ -1,29 +1,47 @@
 mixins.home = {
     mounted() {
-        let background = this.$refs.homeBackground;
-        let images = background.dataset.images.split(",");
-        let id = Math.floor(Math.random() * images.length);
-        background.style.backgroundImage = `url('${images[id]}')`;
+        const background = this.$refs.homeBackground;
+        if (background && background.dataset.images) {
+            const images = background.dataset.images.split(",").filter(Boolean);
+            if (images.length > 0) {
+                const id = Math.floor(Math.random() * images.length);
+                background.style.backgroundImage = `url('${images[id]}')`;
+            }
+        }
         this.menuColor = true;
 
-        // Apply blur effect based on scroll
         const homePostsWrap = this.$refs.homePostsWrap;
-
-        const maxBlur = 10; // Max blur: 10px
+        const maxBlur = 10;
         const startBlurOffset = 0.618;
-        if (homePostsWrap && background) {
-            window.addEventListener("scroll", () => {
-                const rect = homePostsWrap.getBoundingClientRect();
-                const windowHeight = window.innerHeight * startBlurOffset; // Height of the viewport
-                offsetFromTop = 0;
-                if (rect.top < windowHeight) {
-                    offsetFromTop = Math.floor((windowHeight - rect.top) / windowHeight * maxBlur); // How much it's scrolled past the top of the viewport}
-                }
 
-                // Blur increases as homePostsWrap reaches the top
-                let blurValue = Math.min(offsetFromTop, maxBlur);
-                background.style.filter = `blur(${blurValue}px)`;
-            });
+        if (homePostsWrap && background) {
+            let lastBlur = -1;
+            let blurTicking = false;
+
+            this._homeBlurHandler = () => {
+                if (blurTicking) return;
+                blurTicking = true;
+                requestAnimationFrame(() => {
+                    const rect = homePostsWrap.getBoundingClientRect();
+                    const threshold = window.innerHeight * startBlurOffset;
+                    let blurValue = 0;
+                    if (rect.top < threshold && threshold > 0) {
+                        blurValue = Math.min(maxBlur, Math.max(0, Math.floor(((threshold - rect.top) / threshold) * maxBlur)));
+                    }
+                    if (blurValue !== lastBlur) {
+                        background.style.filter = blurValue > 0 ? `blur(${blurValue}px)` : "none";
+                        lastBlur = blurValue;
+                    }
+                    blurTicking = false;
+                });
+            };
+
+            window.addEventListener("scroll", this._homeBlurHandler, { passive: true });
+        }
+    },
+    beforeUnmount() {
+        if (this._homeBlurHandler) {
+            window.removeEventListener("scroll", this._homeBlurHandler);
         }
     },
     methods: {

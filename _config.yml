@@ -66,7 +66,7 @@ footer:
 # Polyfill
 # https://polyfill.io
 polyfill:
-  enable: true
+  enable: false
   features:
     - default
 
@@ -106,6 +106,9 @@ anchor:
   enable: true
 
 pjax:
+  enable: false
+
+darkmode:
   enable: true
 
 canvas:

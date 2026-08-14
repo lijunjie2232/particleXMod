@@ -1,298 +1,276 @@
-// modified from butterfly
+// Modified from butterfly, optimized for ParticleXMod
 
-document.addEventListener('DOMContentLoaded', () => {
-    /**
-    * toc,anchor
-    */
-    const newTocNode = (level, idStack, item, index) => {
-        const li = document.createElement('li')
-        li.className = 'toc-item toc-level-' + level
-        const link_span = document.createElement('span')
-        link_span.className = 'toc-link'
-        // link_span.href = '#' + encodeURI(item.id)
-        link_span.id = `toc-link-${item.id}`
-        // add attibute "winTop" to link_span
-        // link_span.setAttribute('winTop', item.top)
-        link_span.addEventListener('click', (e) => {
-            e.preventDefault();
-            scrollToDest(item.top - offsetY + 80);
-        }
-        )
-        const spanNumber = document.createElement('span')
-        spanNumber.className = 'toc-number'
-        spanNumber.textContent = idStack.join('.') + '.'
-        link_span.appendChild(spanNumber)
-        const spanText = document.createElement('span')
-        spanText.className = 'toc-text'
-        spanText.textContent = item.textContent
-        link_span.appendChild(spanText)
-        li.appendChild(link_span)
-        return li
-    }
+(() => {
+    let cleanupAside = null;
 
-    const buildToc = (l) => {
-        const validList = l.map(item => item.level)
-        const minId = Math.min(...validList)
-        const idOffset = minId - 1;
-
-        let currentNode = document.createElement('ol');
-        currentNode.classList.add('toc');
-        const nodeList = [];
-        const idStack = [0];
-        l.forEach((item, index) => {
-            level = item.level - idOffset
-
-            while (level < idStack.length) {
-                nodeList[nodeList.length - 1].appendChild(currentNode)
-                currentNode = nodeList.pop()
-                idStack.pop()
-            }
-            if (level === idStack.length) {
-                idStack[idStack.length - 1] += 1;
-            }
-            else { // level > idStack.length
-                nodeList.push(currentNode);
-                currentNode = document.createElement('ol');
-                currentNode.classList.add('toc-child');
-                idStack.push(1);
-            }
-            currentNode.appendChild(newTocNode(level, idStack, item, index));
-        });
-
-        while (idStack.length > 1) {
-            nodeList[nodeList.length - 1].appendChild(currentNode)
-            currentNode = nodeList.pop()
-            idStack.pop()
+    const initAside = () => {
+        if (typeof cleanupAside === "function") {
+            cleanupAside();
+            cleanupAside = null;
         }
 
-        const tocContent = document.getElementById("toc-content")
-        tocContent.appendChild(currentNode)
-    }
+        const tocConfig = (window.PARTICLEX_CONFIG && window.PARTICLEX_CONFIG.toc) || {
+            enable: true,
+            anchor: true,
+            percentage: true,
+        };
+        const isToc = Boolean(tocConfig.enable);
+        const isAnchor = Boolean(tocConfig.anchor);
+        const isTocPercent = Boolean(tocConfig.percentage);
 
-    const scrollToDest = (pos, time = 500) => {
-        const currentPos = window.scrollY
-        const isNavFixed = !document.getElementById('menu').classList.contains('hidden')
-        if (currentPos > pos || isNavFixed) pos = pos - 50
+        const $article = document.getElementById("content");
+        const $cardToc = document.getElementById("toc-content");
+        const $asideToc = document.getElementById("aside-toc");
+        const $tocPercent = document.getElementById("toc-percentage");
 
-        if ('scrollBehavior' in document.documentElement.style) {
+        if (!$article || !$cardToc) return;
+
+        let offsetY = window.innerHeight * 0.35;
+        let $articleList = [];
+        let $tocLinks = [];
+        let activeIndex = -1;
+
+        const getEleTop = (ele) => {
+            if (!ele) return 0;
+            const rect = ele.getBoundingClientRect();
+            return rect.top + (window.scrollY || document.documentElement.scrollTop);
+        };
+
+        const scrollToDest = (pos) => {
+            const menu = document.getElementById("menu");
+            const isNavVisible = menu && !menu.classList.contains("hidden");
+            const targetTop = Math.max(0, pos - (isNavVisible ? 70 : 20));
             window.scrollTo({
-                top: pos,
-                behavior: 'smooth'
-            })
-            return
-        }
+                top: targetTop,
+                behavior: "smooth",
+            });
+        };
 
-        const startTime = performance.now()
-        const animate = currentTime => {
-            const timeElapsed = currentTime - startTime
-            const progress = Math.min(timeElapsed / time, 1)
-            window.scrollTo(0, currentPos + (pos - currentPos) * progress)
-            if (progress < 1) {
-                requestAnimationFrame(animate)
+        const closeMobileDrawer = () => {
+            const asideContent = document.getElementById("aside-content");
+            const backdrop = document.getElementById("aside-backdrop");
+            if (asideContent) asideContent.classList.remove("mobile-open");
+            if (backdrop) backdrop.classList.remove("visible");
+        };
+
+        const newTocNode = (level, idStack, item, index) => {
+            const li = document.createElement("li");
+            li.className = `toc-item toc-level-${level}`;
+
+            const linkSpan = document.createElement("span");
+            linkSpan.className = "toc-link";
+            linkSpan.dataset.tocIndex = String(index);
+            linkSpan.addEventListener("click", (e) => {
+                e.preventDefault();
+                scrollToDest(getEleTop(item.el));
+                closeMobileDrawer();
+            });
+
+            const spanNumber = document.createElement("span");
+            spanNumber.className = "toc-number";
+            spanNumber.textContent = `${idStack.join(".")}. `;
+            linkSpan.appendChild(spanNumber);
+
+            const spanText = document.createElement("span");
+            spanText.className = "toc-text";
+            spanText.textContent = item.textContent;
+            linkSpan.appendChild(spanText);
+
+            li.appendChild(linkSpan);
+            return li;
+        };
+
+        const buildToc = (list) => {
+            $cardToc.innerHTML = "";
+            if (!list.length) {
+                if ($asideToc) $asideToc.style.display = "none";
+                $tocLinks = [];
+                return;
             }
-        }
-        requestAnimationFrame(animate)
-    }
+            if ($asideToc) $asideToc.style.display = "";
 
-    const getEleTop = (ele) => {
-        if (!ele) return 0
+            const minLevel = Math.min(...list.map((item) => item.level));
+            const idOffset = minLevel - 1;
 
-        let actualTop = ele.offsetTop
-        let current = ele.offsetParent
+            let currentNode = document.createElement("ol");
+            currentNode.classList.add("toc");
+            const nodeList = [];
+            const idStack = [0];
 
-        while (current !== null) {
-            actualTop += current.offsetTop
-            current = current.offsetParent
-        }
+            list.forEach((item, index) => {
+                const level = item.level - idOffset;
 
-        return actualTop
-    }
-
-    const updateAnchor = (anchor) => {
-        if (anchor !== window.location.hash) {
-            if (!anchor) anchor = location.pathname
-            const title = document.title
-            window.history.replaceState({
-                url: location.href,
-                title
-            }, title, anchor)
-        }
-    }
-
-    const findHeadPosition = (top) => {
-
-        let currentId = encodeURI($articleList[0].id)
-
-        let currentIndex = 0
-
-        if (top > 0) {
-            for (let i = 0; i < $articleList.length; i++) {
-                const ele = $articleList[i]
-
-                const topOffset = ele.top;
-
-                if (top > topOffset) {
-                    currentId = ele.id ? '#' + encodeURI(ele.id) : ''
-                    currentIndex = i
-                } else {
-                    break
+                while (level < idStack.length && nodeList.length > 0) {
+                    nodeList[nodeList.length - 1].appendChild(currentNode);
+                    currentNode = nodeList.pop();
+                    idStack.pop();
                 }
+                if (level === idStack.length) {
+                    idStack[idStack.length - 1] += 1;
+                } else {
+                    while (level > idStack.length) {
+                        nodeList.push(currentNode);
+                        currentNode = document.createElement("ol");
+                        currentNode.classList.add("toc-child");
+                        idStack.push(1);
+                    }
+                }
+                currentNode.appendChild(newTocNode(level, idStack, item, index));
+            });
+
+            while (idStack.length > 1 && nodeList.length > 0) {
+                nodeList[nodeList.length - 1].appendChild(currentNode);
+                currentNode = nodeList.pop();
+                idStack.pop();
             }
-        }
-        // if (detectItem === currentIndex) return
 
-        if (isAnchor) updateAnchor(currentId)
+            $cardToc.appendChild(currentNode);
+            $tocLinks = Array.from($cardToc.querySelectorAll(".toc-link"));
+        };
 
-        detectItem = currentIndex
-        $tocLink = $cardToc.querySelectorAll('.toc-link')
+        const buildArticleList = () => {
+            return Array.from($article.querySelectorAll("h1, h2, h3, h4, h5, h6")).map((el) => ({
+                el,
+                tag: el.tagName,
+                id: el.id,
+                top: getEleTop(el),
+                textContent: el.textContent.trim(),
+                level: Number(el.tagName.slice(1)),
+            }));
+        };
 
-        if (isToc) {
-            // console.log(detectItem)
+        const refreshHeadingPositions = () => {
+            offsetY = window.innerHeight * 0.35;
+            for (const item of $articleList) {
+                item.top = getEleTop(item.el);
+            }
+        };
 
-            document.getElementById("toc-content").querySelectorAll('.toc-active').forEach(i => i.classList.remove('toc-active'))
+        const updateAnchor = (anchor) => {
+            if (anchor !== window.location.hash) {
+                const target = anchor || location.pathname + location.search;
+                window.history.replaceState({ url: location.href, title: document.title }, document.title, target);
+            }
+        };
 
-            if (currentId) {
-                const currentActive = document.getElementById($tocLink[currentIndex].id)
-                currentActive.classList.add('toc-active')
+        const autoScrollToc = (item) => {
+            if (!item || !$cardToc) return;
+            const containerHeight = $cardToc.clientHeight;
+            if (containerHeight <= 0 || $cardToc.scrollHeight <= containerHeight) return;
 
-                // scroll to active toc in aside bar
-                // setTimeout(() => autoScrollToc(currentActive), 0)
+            const containerRect = $cardToc.getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
+            const itemTopInContainer = itemRect.top - containerRect.top + $cardToc.scrollTop;
+            const targetScroll = itemTopInContainer - (containerHeight - itemRect.height) / 2;
+            const clampedTop = Math.max(0, Math.min(targetScroll, $cardToc.scrollHeight - containerHeight));
 
-                if (!isExpand) {
-                    let parent = currentActive.parentNode
-                    while (!parent.matches('.toc')) {
-                        if (parent.matches('li')) parent.classList.add('toc-active')
-                        parent = parent.parentNode
+            if (Math.abs($cardToc.scrollTop - clampedTop) > 2) {
+                $cardToc.scrollTo({
+                    top: clampedTop,
+                    behavior: "smooth",
+                });
+            }
+        };
+
+        const findHeadPosition = (top) => {
+            if (!$articleList.length) return;
+
+            let currentIndex = 0;
+            let currentId = "";
+
+            if (top > 0) {
+                for (let i = 0; i < $articleList.length; i++) {
+                    const ele = $articleList[i];
+                    if (top >= ele.top) {
+                        currentId = ele.id ? "#" + encodeURI(ele.id) : "";
+                        currentIndex = i;
+                    } else {
+                        break;
                     }
                 }
             }
-        }
-    }
 
+            if (currentIndex === activeIndex) return;
+            activeIndex = currentIndex;
 
-    const throttle = (func, wait, options = {}) => {
-        let timeout, context, args;
-        let previous = 0;
+            if (isAnchor && currentId) updateAnchor(currentId);
 
-        const later = () => {
-            previous = options.leading === false ? 0 : new Date().getTime();
-            timeout = null;
-            func.apply(context, args);
-            if (!timeout) context = args = null;
-        };
+            if (isToc && $tocLinks.length) {
+                $cardToc.querySelectorAll(".toc-active").forEach((el) => el.classList.remove("toc-active"));
+                const currentActive = $tocLinks[currentIndex];
+                if (currentActive) {
+                    currentActive.classList.add("toc-active");
+                    autoScrollToc(currentActive);
 
-        const throttled = function (...params) {
-            const now = new Date().getTime();
-            if (!previous && options.leading === false) previous = now;
-            const remaining = wait - (now - previous);
-            context = this;
-            args = params;
-            if (remaining <= 0 || remaining > wait) {
-                if (timeout) {
-                    clearTimeout(timeout);
-                    timeout = null;
+                    let parent = currentActive.parentNode;
+                    while (parent && !parent.matches(".toc")) {
+                        if (parent.matches("li")) parent.classList.add("toc-active");
+                        parent = parent.parentNode;
+                    }
                 }
-                previous = now;
-                func.apply(context, args);
-                if (!timeout) context = args = null;
-            } else if (!timeout && options.trailing !== false) {
-                timeout = setTimeout(later, remaining);
             }
         };
 
-        return throttled;
-    }
+        const getScrollPercent = (currentTop) => {
+            const winHeight = window.innerHeight;
+            const headerTop = getEleTop($article);
+            const contentMath = Math.max($article.clientHeight - winHeight, document.documentElement.scrollHeight - winHeight);
+            if (contentMath <= 0) return "100%";
+            const pct = Math.max(0, Math.min(100, Math.round(((currentTop - headerTop) / contentMath) * 100)));
+            return `${pct}%`;
+        };
 
-    const getScrollPercent = (currentTop, ele) => {
-        if (!docHeight || ele.clientHeight !== docHeight) {
-            docHeight = ele.clientHeight;
-            winHeight = window.innerHeight;
-            headerHeight = ele.offsetTop;
-            contentMath = Math.max(docHeight - winHeight, document.documentElement.scrollHeight - winHeight);
-        }
+        let ticking = false;
+        const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const currentTop = window.scrollY || document.documentElement.scrollTop;
+                if (isTocPercent && $tocPercent) {
+                    $tocPercent.textContent = getScrollPercent(currentTop);
+                }
+                findHeadPosition(currentTop + offsetY);
+                ticking = false;
+            });
+        };
 
-        const scrollPercent = (currentTop - headerHeight) / contentMath;
-        return `${Math.max(0, Math.min(100, Math.round(scrollPercent * 100)))}%`;
-    }
+        let resizeTimer = null;
+        const onResize = () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                refreshHeadingPositions();
+                onScroll();
+            }, 150);
+        };
 
-    const addEventListener = (ele, event, fn, option = false) => {
-
-        ele.addEventListener(event, fn, option);
-
-    }
-
-
-    const autoScrollToc = item => {
-        const sidebarHeight = $cardToc.clientHeight
-        const itemOffsetTop = item.offsetTop
-        const itemHeight = item.clientHeight
-        const scrollTop = $cardToc.scrollTop
-        const offset = itemOffsetTop - scrollTop
-        const middlePosition = (sidebarHeight - itemHeight) / 2
-
-        if (offset !== middlePosition) {
-            $cardToc.scrollTop = scrollTop + (offset - middlePosition)
-        }
-    }
-
-    // main of scroll
-    const tocScrollFn = throttle(() => {
-        const currentTop = window.scrollY || document.documentElement.scrollTop
-        document.getElementById('toc-percentage').textContent = getScrollPercent(currentTop, $article)
-        findHeadPosition(currentTop + offsetY)
-    }, 100)
-
-    let docHeight, winHeight, headerHeight, contentMath
-    let $tocLink, isExpand
-
-    const $article = document.getElementById('content')
-    const offsetY = window.innerHeight * 0.382
-    // const offsetY = window.innerHeight / 2
-    
-    // Function to build article list with current positions
-    const buildArticleList = () => {
-        return Array.from(
-            $article.querySelectorAll('h1,h2,h3,h4,h5,h6')
-        ).map(
-            item => ({
-                tag: item.tagName,
-                id: item.id,
-                top: getEleTop(item),
-                textContent: item.textContent,
-                level: Number(item.tagName.slice(1)),
-            })
-        )
-    }
-    
-    let $articleList = buildArticleList()
-
-    buildToc($articleList)
-
-    let detectItem = 0
-
-    // const $cardTocLayout = document.getElementById('card-toc')
-    const $cardToc = document.getElementById("toc-content")
-    isExpand = $cardToc.classList.contains('is-expand')
-
-    addEventListener(window, 'scroll', tocScrollFn, { passive: true })
-
-    // Expose function to rebuild TOC after dynamic content changes (e.g., Mermaid charts)
-    window.rebuildTocAfterMermaid = () => {
-        console.log('Rebuilding TOC with updated positions...');
-        
-        // Rebuild article list with new positions
         $articleList = buildArticleList();
-        console.log(`Updated article list with ${$articleList.length} headings`);
-        
-        // Clear existing TOC
-        const tocContent = document.getElementById("toc-content");
-        if (tocContent) {
-            tocContent.innerHTML = '';
-            
-            // Rebuild TOC with updated positions
+        buildToc($articleList);
+        onScroll();
+
+        const onLoad = () => {
+            refreshHeadingPositions();
+            onScroll();
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onResize, { passive: true });
+        window.addEventListener("load", onLoad, { once: true });
+
+        cleanupAside = () => {
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onResize);
+            window.removeEventListener("load", onLoad);
+            clearTimeout(resizeTimer);
+        };
+
+        // Rebuild TOC after dynamic content changes (e.g., Mermaid charts or decrypted content)
+        window.rebuildTocAfterMermaid = () => {
+            $articleList = buildArticleList();
+            activeIndex = -1;
             buildToc($articleList);
-            console.log('TOC rebuilt successfully');
-        }
+            onScroll();
+        };
     };
 
-});
+    window.initParticlexAside = initAside;
+})();

@@ -4,17 +4,20 @@ mixins.search = {
     },
     watch: {
         search(value) {
-            let timeline = this.$refs.timeline.childNodes;
-            for (let i of timeline)
-                if (!value || i.dataset.title.includes(value)) {
-                    i.style.opacity = 1;
-                    i.style.visibility = "visible";
-                    i.style.marginTop = 0;
+            const timeline = this.$refs.timeline;
+            if (!timeline) return;
+            for (const el of timeline.children) {
+                const title = (el.dataset && el.dataset.title) || "";
+                if (!value || title.includes(value)) {
+                    el.style.opacity = "1";
+                    el.style.visibility = "visible";
+                    el.style.marginTop = "0";
                 } else {
-                    i.style.opacity = 0;
-                    i.style.visibility = "hidden";
-                    i.style.marginTop = -i.offsetHeight - 30 + "px";
+                    el.style.opacity = "0";
+                    el.style.visibility = "hidden";
+                    el.style.marginTop = `${-el.offsetHeight - 30}px`;
                 }
+            }
         },
     },
     computed: {
