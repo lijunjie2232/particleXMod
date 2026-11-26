@@ -87,18 +87,18 @@
         <% } %>
         <% if (is_post() && (page.prev || page.next)) { %>
         <nav class="post-nav" aria-label="前後の記事">
-            <% if (page.prev) { %>
-            <a class="post-nav-item post-nav-prev" href="<%- url_for(page.prev.path) %>">
+            <% if (page.next) { %>
+            <a class="post-nav-item post-nav-prev" href="<%- url_for(page.next.path) %>">
                 <span class="post-nav-label"><i class="fa-solid fa-arrow-left fa-fw"></i> 前の記事</span>
-                <span class="post-nav-title"><%= page.prev.title %></span>
+                <span class="post-nav-title"><%= page.next.title %></span>
             </a>
             <% } else { %>
             <div class="post-nav-spacer"></div>
             <% } %>
-            <% if (page.next) { %>
-            <a class="post-nav-item post-nav-next" href="<%- url_for(page.next.path) %>">
+            <% if (page.prev) { %>
+            <a class="post-nav-item post-nav-next" href="<%- url_for(page.prev.path) %>">
                 <span class="post-nav-label">次の記事 <i class="fa-solid fa-arrow-right fa-fw"></i></span>
-                <span class="post-nav-title"><%= page.next.title %></span>
+                <span class="post-nav-title"><%= page.prev.title %></span>
             </a>
             <% } %>
         </nav>
